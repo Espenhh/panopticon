@@ -1,0 +1,20 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rm -rf dist && mkdir dist",
+    "copy": "cp -a static/. dist/",
+    "build-js": "elm make Main.elm --output=dist/app.js",
+    "build": "npm run clean && npm run copy && npm run build-js",
+    "watch-elm": "elm-live Main.elm --output=dist/app.js --dir=dist",
+    "watch": "npm run clean && npm run copy && npm run watch-elm"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "elm-live": "^2.6.0"
+  }
+}

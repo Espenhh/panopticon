@@ -6,15 +6,18 @@
   "scripts": {
     "clean": "rm -rf dist && mkdir dist",
     "copy": "cp -a static/. dist/",
-    "build-js": "elm make Main.elm --output=dist/app.js",
-    "build": "npm run clean && npm run copy && npm run build-js",
+    "build-elm": "elm make Main.elm --output=dist/app.js",
     "watch-elm": "elm-live Main.elm --output=dist/app.js --dir=dist",
+    "build-less": "lessc styles/app.less > dist/app.css",
+    "watch-less": "catw -w 'styles/**/*.less' -c 'npm run build-less'",
+    "build": "npm run clean && npm run copy && npm run build-elm && npm run build-less",
     "watch": "npm run clean && npm run copy && npm run watch-elm"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "elm-live": "^2.6.0"
+    "elm-live": "^2.6.0",
+    "catw": "^1.0.1"
   }
 }

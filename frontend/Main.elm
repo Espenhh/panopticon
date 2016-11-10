@@ -11,6 +11,7 @@ import Component.Decoder
 import Component.View
 import List
 import Debug exposing (log)
+import Time exposing (second)
 
 
 type alias Model =
@@ -76,7 +77,7 @@ viewComponent model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    Time.every (10 * second) (\_ -> GetSystemStatus)
 
 
 main : Program Never

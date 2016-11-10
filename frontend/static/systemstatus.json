@@ -1,0 +1,56 @@
+[
+    {
+        "id": "1",
+        "metadata": {
+            "component": "component1",
+            "environment": "prod",
+            "server": "server107",
+            "system": "system1"
+        },
+        "status": "INFO|WARN|ERROR",
+        "history": {
+            "1478774737946": "INFO",
+            "1478774737946": "INFO",
+            "1478774737946": "INFO",
+            "1478774737946": "INFO",
+            "1478774737946": "INFO",
+            "1478774737946": "INFO"
+        }
+    },
+    {
+        "id": "2",
+        "metadata": {
+            "component": "component2",
+            "environment": "prod",
+            "server": "server108",
+            "system": "system2"
+        },
+        "status": "INFO|WARN|ERROR",
+        "history": {
+            "1478774737946": "INFO",
+            "1478774737946": "INFO",
+            "1478774737946": "INFO",
+            "1478774737946": "INFO",
+            "1478774737946": "INFO",
+            "1478774737946": "INFO"
+        }
+    },
+    {
+        "id": "3",
+        "metadata": {
+            "component": "component3",
+            "environment": "prod",
+            "server": "server107",
+            "system": "system2"
+        },
+        "status": "INFO|WARN|ERROR",
+        "history": {
+            "1478774737946": "INFO",
+            "1478774737946": "INFO",
+            "1478774737946": "INFO",
+            "1478774737946": "INFO",
+            "1478774737946": "INFO",
+            "1478774737946": "INFO"
+        }
+    },
+]

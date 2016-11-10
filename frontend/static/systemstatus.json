@@ -5,7 +5,7 @@
         "environment": "prod",
         "server": "server107",
         "system": "system1",
-        "status": "INFO|WARN|ERROR",
+        "status": "INFO",
         "history": {
             "1478774737946": "INFO",
             "1478774737946": "INFO",
@@ -21,7 +21,7 @@
         "environment": "prod",
         "server": "server108",
         "system": "system2",
-        "status": "INFO|WARN|ERROR",
+        "status": "WARN",
         "history": {
             "1478774737946": "INFO",
             "1478774737946": "INFO",
@@ -37,7 +37,7 @@
         "environment": "prod",
         "server": "server107",
         "system": "system2",
-        "status": "INFO|WARN|ERROR",
+        "status": "ERROR",
         "history": {
             "1478774737946": "INFO",
             "1478774737946": "INFO",

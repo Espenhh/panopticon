@@ -10,7 +10,6 @@ import Component.Messages
 import Component.Decoder
 import Component.View
 import List
-import Debug exposing (log)
 import Time exposing (second)
 
 
@@ -38,7 +37,7 @@ update msg model =
             ( model, getSystemStatus )
 
         GetFailed error ->
-            log (toString error) ( model, Cmd.none )
+            ( model, Cmd.none )
 
         GetSucceeded components ->
             ( { model | components = components }, Cmd.none )

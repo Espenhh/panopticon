@@ -3,6 +3,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.App exposing (program, map)
 import Http
+import Html.Attributes exposing (class)
 import Task exposing (Task)
 import Component.Model
 import Component.Update
@@ -66,7 +67,7 @@ view model =
         components =
             List.map viewComponent model.components
     in
-        div [] components
+        div [ class "components" ] components
 
 
 viewComponent : Component.Model.Model -> Html Msg

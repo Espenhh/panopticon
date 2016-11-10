@@ -1,12 +1,12 @@
 module App.Messages exposing (Msg(..))
 
-import Component.Messages
-import Component.Model
+import Components.Messages
+import Components.Model
 import Http
 
 
 type Msg
     = GetSystemStatus
     | GetFailed Http.Error
-    | GetSucceeded (List Component.Model.Model)
-    | ComponentMsg Component.Messages.Msg
+    | GetSucceeded Components.Model.Model
+    | ComponentsMsg Components.Messages.Msg

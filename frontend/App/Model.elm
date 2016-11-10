@@ -1,21 +1,18 @@
-module App.Model exposing (Model, getSystemStatus, init)
+module App.Model exposing (Model, getSystemStatus)
 
 import App.Messages
 import App.Messages exposing (..)
-import Component.Decoder
-import Component.Model
+import Components.Decoder
+import Components.Model
+import Nav.Model
 import Http
 import Task exposing (Task)
 
 
 type alias Model =
-    { components : List Component.Model.Model
+    { components : Components.Model.Model
+    , page : Nav.Model.Page
     }
-
-
-init : ( Model, Cmd Msg )
-init =
-    ( Model [], getSystemStatus )
 
 
 getSystemStatus : Cmd Msg
@@ -23,6 +20,6 @@ getSystemStatus =
     Task.perform GetFailed GetSucceeded getSystemStatusRequest
 
 
-getSystemStatusRequest : Task Http.Error (List Component.Model.Model)
+getSystemStatusRequest : Task Http.Error Components.Model.Model
 getSystemStatusRequest =
-    Http.get Component.Decoder.listDecoder "/systemstatus.json"
+    Http.get Components.Decoder.decoder "/systemstatus.json"

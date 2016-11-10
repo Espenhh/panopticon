@@ -1,13 +1,8 @@
-module Component.Decoder exposing (listDecoder)
+module Component.Decoder exposing (decoder)
 
 import Component.Model exposing (..)
-import Json.Decode exposing (Decoder, succeed, list, string, andThen, (:=))
+import Json.Decode exposing (Decoder, succeed, string, andThen, (:=))
 import Json.Decode.Extra exposing ((|:))
-
-
-listDecoder : Decoder (List Model)
-listDecoder =
-    list decoder
 
 
 decoder : Decoder Model

@@ -2,7 +2,7 @@ module App.Update exposing (update)
 
 import App.Messages exposing (..)
 import App.Model exposing (..)
-import Component.Update
+import Components.Update
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -17,9 +17,9 @@ update msg model =
         GetSucceeded components ->
             ( { model | components = components }, Cmd.none )
 
-        ComponentMsg componentMsg ->
+        ComponentsMsg componentsMsg ->
             let
-                componentModels =
-                    List.map (Component.Update.update componentMsg) model.components
+                componentsModel =
+                    Components.Update.update componentsMsg model.components
             in
-                ( { model | components = componentModels }, Cmd.none )
+                ( { model | components = componentsModel }, Cmd.none )

@@ -3,22 +3,22 @@ module App.View exposing (view)
 import Html exposing (Html, div)
 import Html.App
 import Html.Attributes exposing (class)
-import Component.Model
-import Component.View
+import Components.View
 import App.Model exposing (..)
 import App.Messages exposing (..)
-import List
+import Nav.Model exposing (Page(..))
 
 
 view : Model -> Html Msg
 view model =
-    let
-        components =
-            List.map viewComponent model.components
-    in
-        div [ class "components" ] components
+    case model.page of
+        Components ->
+            div [ class "container" ] [ componentsView model ]
+
+        Component index ->
+            div [ class "container" ] [ componentsView model ]
 
 
-viewComponent : Component.Model.Model -> Html Msg
-viewComponent model =
-    Html.App.map ComponentMsg (Component.View.view model)
+componentsView : Model -> Html Msg
+componentsView model =
+    Html.App.map ComponentsMsg (Components.View.view model.components)

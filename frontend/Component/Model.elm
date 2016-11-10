@@ -7,4 +7,11 @@ type alias Model =
     , environment : String
     , server : String
     , system : String
+    , status : Status
     }
+
+
+type Status
+    = Info
+    | Warn
+    | Error

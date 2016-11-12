@@ -10,8 +10,8 @@
     "watch-elm": "elm-live Main.elm --output=dist/app.js --dir=dist",
     "build-less": "lessc styles/app.less > dist/app.css",
     "watch-less": "catw -w 'styles/**/*.less' -c 'npm run build-less'",
-    "build": "npm run clean && npm run copy && npm run build-elm && npm run build-less",
-    "watch": "npm run clean && npm run copy && npm run watch-elm"
+    "build": "npm-run-all clean copy build-elm build-less",
+    "watch": "npm-run-all clean copy --parallel watch-elm watch-less"
   },
   "keywords": [],
   "author": "",

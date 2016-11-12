@@ -1,6 +1,6 @@
 package no.panopticon.api.external;
 
-import no.panopticon.api.storage.StatusStorage;
+import no.panopticon.storage.StatusStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package no.panopticon.api.storage;
+package no.panopticon.storage;
 
 import java.util.List;
 

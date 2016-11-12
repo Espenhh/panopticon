@@ -1,4 +1,4 @@
-package no.panopticon.api.storage;
+package no.panopticon.storage;
 
 import no.panopticon.api.external.UpdatedStatus;
 import no.panopticon.api.internal.UnitDetails;

@@ -1,6 +1,6 @@
 package no.panopticon.api.internal;
 
-import no.panopticon.api.storage.StatusStorage;
+import no.panopticon.storage.StatusStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

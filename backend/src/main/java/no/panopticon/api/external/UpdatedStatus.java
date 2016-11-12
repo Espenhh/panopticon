@@ -1,7 +1,7 @@
 package no.panopticon.api.external;
 
-import no.panopticon.api.storage.RunningUnit;
-import no.panopticon.api.storage.StatusSnapshot;
+import no.panopticon.storage.RunningUnit;
+import no.panopticon.storage.StatusSnapshot;
 
 import java.util.List;
 

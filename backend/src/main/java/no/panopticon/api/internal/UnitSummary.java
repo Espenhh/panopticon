@@ -1,7 +1,7 @@
 package no.panopticon.api.internal;
 
-import no.panopticon.api.storage.RunningUnit;
-import no.panopticon.api.storage.StatusSnapshot;
+import no.panopticon.storage.RunningUnit;
+import no.panopticon.storage.StatusSnapshot;
 
 import static no.panopticon.api.internal.InternalStatusResource.INTERNAL_STATUS_BASE_PATH;
 

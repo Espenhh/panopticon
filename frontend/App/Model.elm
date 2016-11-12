@@ -4,6 +4,7 @@ import App.Messages
 import App.Messages exposing (..)
 import Components.Decoder
 import Components.Model
+import Detail.Model
 import Nav.Model
 import Http
 import Task exposing (Task)
@@ -11,6 +12,7 @@ import Task exposing (Task)
 
 type alias Model =
     { components : Components.Model.Model
+    , detail : Detail.Model.Model
     , page : Nav.Model.Page
     }
 

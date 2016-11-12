@@ -1,11 +1,12 @@
 module Nav.Nav exposing (..)
 
 import Navigation
-import UrlParser exposing (Parser, (</>), oneOf, format, s, int, parse)
+import UrlParser exposing (Parser, (</>), oneOf, format, s, string, parse)
 import String exposing (dropLeft)
-import App.Model exposing (Model)
-import App.Messages exposing (Msg)
+import App.Model exposing (Model, getSystemStatus)
+import App.Messages exposing (Msg(..))
 import Nav.Model exposing (Page(..))
+import Nav.Requests exposing (getDetails)
 
 
 toHash : Page -> String
@@ -15,7 +16,7 @@ toHash page =
             "#"
 
         Component index ->
-            "#component/" ++ toString index
+            "#component/" ++ index
 
 
 hashParser : Navigation.Location -> Result String Page
@@ -27,7 +28,7 @@ pageParser : Parser (Page -> a) a
 pageParser =
     oneOf
         [ format Components (s "")
-        , format Component (s "component" </> int)
+        , format Component (s "component" </> string)
         ]
 
 
@@ -37,5 +38,12 @@ urlUpdate result model =
         Err a ->
             ( model, Navigation.modifyUrl (toHash model.page) )
 
-        Ok newPage ->
-            { model | page = newPage } ! []
+        Ok (Components as page) ->
+            ( { model | page = page }, getSystemStatus )
+
+        Ok ((Component _) as page) ->
+            let
+                msg =
+                    Cmd.map DetailMsg getDetails
+            in
+                ( { model | page = page }, msg )

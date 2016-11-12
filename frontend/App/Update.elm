@@ -3,6 +3,7 @@ module App.Update exposing (update)
 import App.Messages exposing (..)
 import App.Model exposing (..)
 import Components.Update
+import Detail.Update
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -23,3 +24,10 @@ update msg model =
                     Components.Update.update componentsMsg model.components
             in
                 ( { model | components = componentsModel }, Cmd.none )
+
+        DetailMsg detailMsg ->
+            let
+                detailModel =
+                    Detail.Update.update detailMsg model.detail
+            in
+                ( { model | detail = detailModel }, Cmd.none )

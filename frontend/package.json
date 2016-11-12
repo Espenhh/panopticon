@@ -17,7 +17,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "catw": "^1.0.1",
     "elm-live": "^2.6.0",
-    "catw": "^1.0.1"
+    "less": "^2.7.1",
+    "npm-run-all": "^3.1.1"
   }
 }

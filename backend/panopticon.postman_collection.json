@@ -1,0 +1,83 @@
+{
+	"variables": [],
+	"info": {
+		"name": "panopticon",
+		"_postman_id": "b04a3dec-16a5-6639-1acc-cbad4be7d4dc",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "External",
+			"description": "",
+			"item": [
+				{
+					"name": "Update status",
+					"request": {
+						"url": "localhost:8080/external/status",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"environment\": \"prod\",\n\t\"system\": \"nsb-salgsapper\",\n\t\"component\": \"MTL\",\n\t\"server\": \"linuxserver107\",\n\t\"measurements\": [\n\t\t{\n\t\t\t\"key\": \"memory.usage\",\n\t\t\t\"status\": \"INFO\",\n\t\t\t\"displayValue\": \"10% (101MB of 1024MB)\",\n\t\t\t\"numericValue\": 10\n\t\t},\n\t\t{\n\t\t\t\"key\": \"jetty.thread.usage\",\n\t\t\t\"status\": \"WARN\",\n\t\t\t\"displayValue\": \"600 used of 768 available\",\n\t\t\t\"numericValue\": 600\n\t\t}\n\t]\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Internal",
+			"description": "",
+			"item": [
+				{
+					"name": "Get all components",
+					"request": {
+						"url": "localhost:8080/internal/status",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Get single component",
+					"request": {
+						"url": "localhost:8080/internal/status/prod/nsb-salgsapper/MTL/linuxserver107",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

@@ -9,3 +9,9 @@ update msg model =
     case msg of
         Update ->
             model
+
+        GetFailed error ->
+            model
+
+        GetSucceeded metrics ->
+            metrics

@@ -24,7 +24,7 @@ componentClass status =
 
 url : Model -> String
 url model =
-    toHash <| Component model.id
+    toHash <| Component model.environment model.system model.component model.server
 
 
 view : Model -> Html Msg

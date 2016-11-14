@@ -3,4 +3,4 @@ module Nav.Model exposing (Page(..))
 
 type Page
     = Components
-    | Component String
+    | Component String String String String

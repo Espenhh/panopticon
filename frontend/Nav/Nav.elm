@@ -3,10 +3,10 @@ module Nav.Nav exposing (..)
 import Navigation
 import UrlParser exposing (Parser, (</>), oneOf, format, s, string, parse)
 import String exposing (dropLeft)
-import App.Model exposing (Model, getSystemStatus)
+import App.Model exposing (Model)
 import App.Messages exposing (Msg(..))
 import Nav.Model exposing (Page(..))
-import Nav.Requests exposing (getDetails)
+import Nav.Requests exposing (getDetails, getSystemStatus)
 
 
 toHash : Page -> String
@@ -15,8 +15,8 @@ toHash page =
         Components ->
             "#"
 
-        Component index ->
-            "#component/" ++ index
+        Component env system component server ->
+            "#component/" ++ env ++ "/" ++ system ++ "/" ++ component ++ "/" ++ server
 
 
 hashParser : Navigation.Location -> Result String Page
@@ -28,7 +28,7 @@ pageParser : Parser (Page -> a) a
 pageParser =
     oneOf
         [ format Components (s "")
-        , format Component (s "component" </> string)
+        , format Component (s "component" </> string </> string </> string </> string)
         ]
 
 
@@ -41,9 +41,9 @@ urlUpdate result model =
         Ok (Components as page) ->
             ( { model | page = page }, getSystemStatus )
 
-        Ok ((Component _) as page) ->
+        Ok ((Component env system component server) as page) ->
             let
                 msg =
-                    Cmd.map DetailMsg getDetails
+                    Cmd.map DetailMsg <| getDetails env system component server
             in
                 ( { model | page = page }, msg )

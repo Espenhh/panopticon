@@ -2,12 +2,12 @@ module Component.Model exposing (..)
 
 
 type alias Model =
-    { id : String
-    , component : String
-    , environment : String
-    , server : String
+    { environment : String
     , system : String
+    , component : String
+    , server : String
     , status : Status
+    , details : String
     }
 
 

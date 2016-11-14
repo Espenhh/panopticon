@@ -1,19 +1,19 @@
 module Component.Decoder exposing (decoder)
 
 import Component.Model exposing (..)
-import Json.Decode exposing (Decoder, succeed, string, andThen, (:=))
+import Json.Decode exposing (Decoder, succeed, string, at, andThen, (:=))
 import Json.Decode.Extra exposing ((|:))
 
 
 decoder : Decoder Model
 decoder =
     succeed Model
-        |: ("id" := string)
-        |: ("component" := string)
         |: ("environment" := string)
-        |: ("server" := string)
         |: ("system" := string)
-        |: (("status" := string) `andThen` decodeStatus)
+        |: ("component" := string)
+        |: ("server" := string)
+        |: (("overallStatus" := string) `andThen` decodeStatus)
+        |: (at [ "links", "details" ] string)
 
 
 decodeStatus : String -> Decoder Status

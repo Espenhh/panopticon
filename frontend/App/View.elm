@@ -16,7 +16,7 @@ view model =
         Components ->
             div [ class "container" ] [ componentsView model ]
 
-        Component index ->
+        Component _ _ _ _ ->
             div [ class "container" ] [ detailView model ]
 
 

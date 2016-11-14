@@ -13,9 +13,12 @@ view : Model -> Html Msg
 view model =
     let
         metrics =
-            List.map viewMetric model.metrics
+            List.map viewMetric model.measurements
     in
-        div [ class "detail" ] metrics
+        div [ class "detail" ]
+            [ text model.component
+            , div [ class "detail__metrics" ] metrics
+            ]
 
 
 viewMetric : Metric.Model.Model -> Html Msg

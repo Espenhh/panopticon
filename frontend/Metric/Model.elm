@@ -3,9 +3,9 @@ module Metric.Model exposing (Model, Status(..))
 
 type alias Model =
     { key : String
-    , displayValue : String
-    , numericValue : String
     , status : Status
+    , displayValue : String
+    , numericValue : Int
     }
 
 

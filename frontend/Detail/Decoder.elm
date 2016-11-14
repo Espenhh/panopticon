@@ -1,16 +1,16 @@
 module Detail.Decoder exposing (decoder)
 
 import Detail.Model exposing (..)
-import Json.Decode exposing (Decoder, list, andThen, succeed)
+import Json.Decode exposing (Decoder, succeed, list, string, andThen, succeed, (:=))
+import Json.Decode.Extra exposing ((|:))
 import Metric.Decoder
-import Metric.Model
 
 
 decoder : Decoder Model
 decoder =
-    list Metric.Decoder.decoder `andThen` decodeModel
-
-
-decodeModel : List Metric.Model.Model -> Decoder Model
-decodeModel metricList =
-    succeed (Model metricList)
+    succeed Model
+        |: ("environment" := string)
+        |: ("system" := string)
+        |: ("component" := string)
+        |: ("server" := string)
+        |: ("measurements" := list Metric.Decoder.decoder)

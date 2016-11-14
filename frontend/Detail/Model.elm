@@ -4,10 +4,14 @@ import Metric.Model
 
 
 type alias Model =
-    { metrics : List Metric.Model.Model
+    { environment : String
+    , system : String
+    , component : String
+    , server : String
+    , measurements : List Metric.Model.Model
     }
 
 
 init : Model
 init =
-    Model []
+    Model "" "" "" "" []

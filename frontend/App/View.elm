@@ -1,6 +1,6 @@
 module App.View exposing (view)
 
-import Html exposing (Html, div)
+import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
 import Components.View
 import Detail.View
@@ -11,12 +11,24 @@ import Nav.Model exposing (Page(..))
 
 view : Model -> Html Msg
 view model =
+    let
+        page =
+            viewPage model
+    in
+        div [ class "app" ]
+            [ div [ class "app__sidebar" ] [ text "PANOPTICON" ]
+            , div [ class "app__container" ] [ page ]
+            ]
+
+
+viewPage : Model -> Html Msg
+viewPage model =
     case model.page of
         Components ->
-            div [ class "container" ] [ componentsView model ]
+            componentsView model
 
         Component _ _ _ _ ->
-            div [ class "container" ] [ detailView model ]
+            detailView model
 
 
 componentsView : Model -> Html Msg

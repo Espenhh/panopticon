@@ -2,13 +2,38 @@ html {
     box-sizing: border-box;
     font-size: 14px;
     font-family: 'Helvetica Neue';
+    height: 100%;
 }
 
 body {
+    height: 100%;
     margin: 0;
     padding: 0;
 }
 
 *, *:before, *:after {
     box-sizing: inherit;
+}
+
+.app {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+
+    &__sidebar {
+        background: #2C2C31;
+        box-shadow: 0 0 10px rgba(0, 0, 0, .5);
+        color: white;
+        height: 100%;
+        padding: 37px 10px;
+        text-align: center;
+        width: 200px;
+        z-index: 1;
+    }
+
+    &__container {
+        background: #29292C;
+        padding: 30px;
+        width: 100%;
+    }
 }

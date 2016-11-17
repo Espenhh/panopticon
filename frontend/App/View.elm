@@ -1,7 +1,6 @@
 module App.View exposing (view)
 
 import Html exposing (Html, div)
-import Html.App
 import Html.Attributes exposing (class)
 import Components.View
 import Detail.View
@@ -22,9 +21,9 @@ view model =
 
 componentsView : Model -> Html Msg
 componentsView model =
-    Html.App.map ComponentsMsg <| Components.View.view model.components
+    Html.map ComponentsMsg <| Components.View.view model.components
 
 
 detailView : Model -> Html Msg
 detailView model =
-    Html.App.map DetailMsg <| Detail.View.view model.detail
+    Html.map DetailMsg <| Detail.View.view model.detail

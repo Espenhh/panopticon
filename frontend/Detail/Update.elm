@@ -10,8 +10,8 @@ update msg model =
         Update ->
             model
 
-        GetFailed error ->
+        Get (Err _) ->
             model
 
-        GetSucceeded metrics ->
+        Get (Ok metrics) ->
             metrics

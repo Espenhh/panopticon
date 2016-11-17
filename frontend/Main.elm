@@ -8,26 +8,29 @@ import App.Update exposing (update)
 import App.View exposing (view)
 import Components.Model
 import Detail.Model
-import Nav.Nav exposing (urlUpdate, hashParser)
+import Nav.Nav exposing (hashParser, toHash)
 import Nav.Model exposing (Page)
 
 
-initModel : Model
-initModel =
-    Model Components.Model.init Detail.Model.init Nav.Model.Components
+initModel : Page -> Model
+initModel page =
+    Model Components.Model.init Detail.Model.init page
 
 
-init : Result String Page -> ( Model, Cmd Msg )
-init result =
-    urlUpdate result initModel
+init : Navigation.Location -> ( Model, Cmd Msg )
+init location =
+    let
+        page =
+            hashParser location
+    in
+        ( initModel page, Navigation.newUrl <| toHash page )
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
-    Navigation.program (Navigation.makeParser hashParser)
+    Navigation.program (UpdateUrl << hashParser)
         { init = init
         , update = update
         , view = view
         , subscriptions = subscriptions
-        , urlUpdate = urlUpdate
         }

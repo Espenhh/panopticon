@@ -5,7 +5,6 @@ import Detail.Messages exposing (..)
 import Metric.Model
 import Metric.View
 import Html exposing (Html, div, text)
-import Html.App
 import Html.Attributes exposing (class)
 
 
@@ -23,4 +22,4 @@ view model =
 
 viewMetric : Metric.Model.Model -> Html Msg
 viewMetric model =
-    Html.App.map (\_ -> Update) <| Metric.View.view model
+    Html.map (\_ -> Update) <| Metric.View.view model

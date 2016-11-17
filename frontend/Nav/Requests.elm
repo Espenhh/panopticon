@@ -1,12 +1,9 @@
 module Nav.Requests exposing (getDetails, getSystemStatus)
 
-import Http exposing (empty, send, defaultSettings, fromJson)
-import Task exposing (Task)
+import Http
 import App.Messages
-import Components.Model
 import Components.Decoder
 import Detail.Messages
-import Detail.Model
 import Detail.Decoder
 import Json.Decode exposing (Decoder)
 import String
@@ -14,40 +11,36 @@ import String
 
 baseUrl : String
 baseUrl =
-    "http://localhost:8080/"
+    "http://localhost:8080"
 
 
 getSystemStatus : Cmd App.Messages.Msg
 getSystemStatus =
-    Task.perform App.Messages.GetFailed App.Messages.GetSucceeded getSystemStatusRequest
+    Http.send App.Messages.SystemStatus <|
+        jsonGet Components.Decoder.decoder <|
+            url [ baseUrl, "internal", "status" ]
 
 
 getDetails : String -> String -> String -> String -> Cmd Detail.Messages.Msg
 getDetails env system component server =
-    Task.perform Detail.Messages.GetFailed Detail.Messages.GetSucceeded <|
-        getDetailsRequest env system component server
+    Http.send Detail.Messages.Get <|
+        jsonGet Detail.Decoder.decoder <|
+            url [ baseUrl, "internal", "status", env, system, component, server ]
 
 
-getSystemStatusRequest : Task Http.Error Components.Model.Model
-getSystemStatusRequest =
-    jsonGet "http://localhost:8080/internal/status" Components.Decoder.decoder
+url : List String -> String
+url =
+    String.join "/"
 
 
-getDetailsRequest : String -> String -> String -> String -> Task Http.Error Detail.Model.Model
-getDetailsRequest env system component server =
-    let
-        url =
-            baseUrl ++ String.join "/" [ "internal", "status", env, system, component, server ]
-    in
-        jsonGet url Detail.Decoder.decoder
-
-
-jsonGet : String -> Decoder a -> Task Http.Error a
-jsonGet url decoder =
-    fromJson decoder <|
-        send defaultSettings
-            { verb = "GET"
-            , headers = [ ( "Accept", "application/json" ) ]
-            , url = url
-            , body = empty
-            }
+jsonGet : Decoder a -> String -> Http.Request a
+jsonGet decoder url =
+    Http.request
+        { method = "GET"
+        , headers = [ Http.header "Accept" "application/json" ]
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson decoder
+        , timeout = Nothing
+        , withCredentials = False
+        }

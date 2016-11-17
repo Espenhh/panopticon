@@ -1,17 +1,17 @@
 module Metric.Decoder exposing (decoder)
 
 import Metric.Model exposing (..)
-import Json.Decode exposing (Decoder, succeed, int, string, andThen, (:=))
+import Json.Decode exposing (Decoder, succeed, int, string, andThen, field)
 import Json.Decode.Extra exposing ((|:))
 
 
 decoder : Decoder Model
 decoder =
     succeed Model
-        |: ("key" := string)
-        |: (("status" := string) `andThen` decodeStatus)
-        |: ("displayValue" := string)
-        |: ("numericValue" := int)
+        |: (field "key" string)
+        |: (field "status" string |> andThen decodeStatus)
+        |: (field "displayValue" string)
+        |: (field "numericValue" int)
 
 
 decodeStatus : String -> Decoder Status

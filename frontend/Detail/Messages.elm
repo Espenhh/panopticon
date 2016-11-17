@@ -6,5 +6,4 @@ import Detail.Model exposing (..)
 
 type Msg
     = Update
-    | GetFailed Http.Error
-    | GetSucceeded Model
+    | Get (Result Http.Error Model)

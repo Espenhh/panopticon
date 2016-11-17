@@ -5,7 +5,6 @@ import Components.Messages exposing (..)
 import Component.Model
 import Component.View
 import Html exposing (Html, div)
-import Html.App
 import Html.Attributes exposing (class)
 import List
 
@@ -21,4 +20,4 @@ view model =
 
 viewComponent : Component.Model.Model -> Html Msg
 viewComponent model =
-    Html.App.map ComponentMsg (Component.View.view model)
+    Html.map ComponentMsg (Component.View.view model)

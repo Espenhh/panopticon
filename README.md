@@ -15,5 +15,5 @@ TODO 🙂
 
 ## Running panopticon locally
 
-* Get the frontend running: see the README file in `/frontend`
-* Get the backend running: see the README file in `/backend`
+* [Frontend](/frontend)
+* [Backend](/backend)

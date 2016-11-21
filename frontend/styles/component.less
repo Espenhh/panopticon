@@ -2,24 +2,24 @@
 }
 
 .component {
+    align-items: center;
     background: #f6f6f6;
     box-shadow: 0 0 10px 2px rgba(0, 0, 0, .3);
     display: flex;
-    padding: 20px 0 20px 40px;
+    font-size: 18px;
+    padding: 20px 0;
     text-decoration: none;
     width: 100%;
 
-    &--warn:before {
-        content: 'LOL';
-    }
-
-    &--error {
-        // background: rgba(255, 0, 0, .2);
+    &__status {
+        text-align: center;
+        width: 50px;
     }
 
     &__name {
         font-size: 1.2rem;
         font-weight: 600;
         text-transform: uppercase;
+        width: 150px;
     }
 }

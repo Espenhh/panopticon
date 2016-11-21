@@ -8,18 +8,18 @@ import Nav.Nav exposing (toHash)
 import Nav.Model exposing (Page(..))
 
 
-componentClass : Status -> String
-componentClass status =
-    "component "
+statusIcon : Status -> String
+statusIcon status =
+    "component__status "
         ++ case status of
             Info ->
-                "component--normal"
+                ""
 
             Warn ->
-                "component--warn"
+                "icon-exclamation"
 
             Error ->
-                "component--error"
+                "icon-fire"
 
 
 url : Model -> String
@@ -29,8 +29,9 @@ url model =
 
 view : Model -> Html Msg
 view model =
-    a [ href <| url model, class (componentClass model.status) ]
-        [ div [ class "component__name" ]
+    a [ href <| url model, class "component" ]
+        [ div [ class <| statusIcon model.status ] []
+        , div [ class "component__name" ]
             [ text model.component ]
         , div [ class "component__server" ]
             [ text model.server ]

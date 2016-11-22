@@ -7,6 +7,7 @@ import Detail.View
 import App.Model exposing (..)
 import App.Messages exposing (..)
 import Nav.Model exposing (Page(..))
+import Nav.Nav exposing (toHash)
 
 
 view : Model -> Html Msg
@@ -17,7 +18,7 @@ view model =
     in
         div [ class "app" ]
             [ div [ class "app__sidebar" ]
-                [ a [ href "/", class "app__home" ] [ text "PANOPTICON" ] ]
+                [ a [ href <| toHash Components, class "app__home" ] [ text "PANOPTICON" ] ]
             , div [ class "app__container" ] [ page ]
             ]
 

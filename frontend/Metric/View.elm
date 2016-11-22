@@ -8,16 +8,16 @@ import Html.Attributes exposing (class)
 
 statusIcon : Status -> String
 statusIcon status =
-    "component__status "
+    "metric__status metric__status--"
         ++ case status of
             Info ->
-                "icon-like"
+                "info icon-like"
 
             Warn ->
-                "icon-exclamation"
+                "warning icon-exclamation"
 
             Error ->
-                "icon-fire"
+                "error icon-fire"
 
 
 view : Model -> Html Msg

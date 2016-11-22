@@ -10,16 +10,16 @@ import Nav.Model exposing (Page(..))
 
 statusIcon : Status -> String
 statusIcon status =
-    "component__status "
+    "component__status component__status--"
         ++ case status of
             Info ->
-                "icon-like"
+                "normal icon-like"
 
             Warn ->
-                "icon-exclamation"
+                "warning icon-exclamation"
 
             Error ->
-                "icon-fire"
+                "error icon-fire"
 
 
 url : Model -> String

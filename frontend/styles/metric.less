@@ -1,10 +1,24 @@
 .metric {
+    align-items: center;
     background: #f6f6f6;
     color: black;
+    font-size: 1.4rem;
     display: flex;
-    padding: 20px 0;
+
+    &__status {
+        padding: 20px 25px 20px 20px;
+
+        &--warning {
+            background: #ebc44d;
+        }
+
+        &--error {
+            background: #ee735d;
+        }
+    }
 
     &__key {
+        padding-left: 20px;
         width: 200px;
     }
 

@@ -3,6 +3,7 @@ module Nav.Nav exposing (..)
 import Navigation
 import UrlParser exposing (Parser, (</>), oneOf, map, s, string, parseHash, top)
 import Nav.Model exposing (Page(..))
+import String exposing (join)
 
 
 toHash : Page -> String
@@ -12,7 +13,7 @@ toHash page =
             "#"
 
         Component env system component server ->
-            "#component/" ++ env ++ "/" ++ system ++ "/" ++ component ++ "/" ++ server
+            join "/" [ "#component", env, system, component, server ]
 
 
 hashParser : Navigation.Location -> Page

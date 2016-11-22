@@ -11,7 +11,7 @@ import String
 
 baseUrl : String
 baseUrl =
-    "http://localhost:8080"
+    "/api"
 
 
 getSystemStatus : Cmd App.Messages.Msg

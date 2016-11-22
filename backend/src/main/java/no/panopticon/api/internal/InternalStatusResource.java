@@ -15,7 +15,7 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 @Path(InternalStatusResource.INTERNAL_STATUS_BASE_PATH)
 public class InternalStatusResource {
 
-    public static final String INTERNAL_STATUS_BASE_PATH = "/internal/status";
+    public static final String INTERNAL_STATUS_BASE_PATH = "/api/internal/status";
 
     private final StatusStorage statusStorage;
 

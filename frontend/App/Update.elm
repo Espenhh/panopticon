@@ -12,17 +12,17 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UpdateUrl (Components as page) ->
-            ( { model | page = page }, getSystemStatus )
+            ( { model | page = page }, getSystemStatus model.flags.url )
 
         UpdateUrl ((Component env system component server) as page) ->
             let
                 cmd =
-                    Cmd.map DetailMsg <| getDetails env system component server
+                    Cmd.map DetailMsg <| getDetails model.flags.url env system component server
             in
                 ( { model | page = page }, cmd )
 
         GetSystemStatus ->
-            ( model, getSystemStatus )
+            ( model, getSystemStatus model.flags.url )
 
         SystemStatus (Err _) ->
             ( model, Cmd.none )

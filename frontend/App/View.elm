@@ -1,7 +1,7 @@
 module App.View exposing (view)
 
-import Html exposing (Html, div, text)
-import Html.Attributes exposing (class)
+import Html exposing (Html, div, text, a)
+import Html.Attributes exposing (class, href)
 import Components.View
 import Detail.View
 import App.Model exposing (..)
@@ -16,7 +16,8 @@ view model =
             viewPage model
     in
         div [ class "app" ]
-            [ div [ class "app__sidebar" ] [ text "PANOPTICON" ]
+            [ div [ class "app__sidebar" ]
+                [ a [ href "/", class "app__home" ] [ text "PANOPTICON" ] ]
             , div [ class "app__container" ] [ page ]
             ]
 

@@ -13,7 +13,7 @@ statusIcon status =
     "component__status "
         ++ case status of
             Info ->
-                ""
+                "icon-like"
 
             Warn ->
                 "icon-exclamation"

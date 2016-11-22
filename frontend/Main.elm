@@ -12,23 +12,23 @@ import Nav.Nav exposing (hashParser, toHash)
 import Nav.Model exposing (Page)
 
 
-initModel : Page -> Model
-initModel page =
-    Model Components.Model.init Detail.Model.init page
+initModel : Flags -> Page -> Model
+initModel flags page =
+    Model flags Components.Model.init Detail.Model.init page
 
 
-init : Navigation.Location -> ( Model, Cmd Msg )
-init location =
+init : Flags -> Navigation.Location -> ( Model, Cmd Msg )
+init flags location =
     let
         page =
             hashParser location
     in
-        ( initModel page, Navigation.newUrl <| toHash page )
+        ( initModel flags page, Navigation.newUrl <| toHash page )
 
 
-main : Program Never Model Msg
+main : Program Flags Model Msg
 main =
-    Navigation.program (UpdateUrl << hashParser)
+    Navigation.programWithFlags (UpdateUrl << hashParser)
         { init = init
         , update = update
         , view = view

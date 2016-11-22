@@ -1,10 +1,16 @@
-module Components.Model exposing (Model, init)
+module Components.Model exposing (Model, Environment, init)
 
 import Component.Model
 
 
 type alias Model =
-    { components : List Component.Model.Model
+    { environments : List Environment
+    }
+
+
+type alias Environment =
+    { name : String
+    , components : List Component.Model.Model
     }
 
 

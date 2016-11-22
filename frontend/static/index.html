@@ -8,7 +8,10 @@
 <body>
     <script type="text/javascript" src="app.js"></script>
     <script>
-        Elm.Main.fullscreen();
+        var url = window.location.href.includes("localhost") ? "localhost:8080/api" : "/api";
+        Elm.Main.fullscreen({
+            url: url
+        });
     </script>
 </body>
 </html>

@@ -8,12 +8,14 @@ import Component.Model
 
 decoder : Decoder Model
 decoder =
-    list Component.Decoder.decoder |> andThen decodeModel
+    andThen decodeModel <| list Component.Decoder.decoder
 
 
 decodeModel : List Component.Model.Model -> Decoder Model
-decodeModel componentList =
-    succeed (Model componentList)
+decodeModel ls =
+    succeed <| Model <| List.map partitionEnv <| groupWhile env ls
+
+
 partitionEnv : List Component.Model.Model -> Environment
 partitionEnv ls =
     case List.head ls of

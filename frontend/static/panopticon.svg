@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="402px" height="231px" viewBox="0 0 402 231" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 41.1 (35376) - http://www.bohemiancoding.com/sketch -->
+    <title>panopticon</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M315.374579,72.5 C294.701161,115.397914 250.807549,145 200,145 C149.192451,145 105.298839,115.397914 84.6254214,72.5 C105.298839,29.6020855 149.192451,0 200,0 C250.807549,0 294.701161,29.6020855 315.374579,72.5 L315.374579,72.5 Z M200.310547,120.888672 C163.518873,120.888672 127.445992,103.40678 112.475586,72.3427734 C127.445992,41.2787664 163.820631,23.7060547 200.612305,23.7060547 C237.403978,23.7060547 274.754204,41.2257879 289.724609,72.2897949 C274.754204,103.421429 237.10222,120.888672 200.310547,120.888672 Z" id="Combined-Shape" fill="#268EA9"></path>
+        <circle id="Oval" stroke="#268EA9" stroke-width="21" cx="200.5" cy="72.5" r="52.5"></circle>
+        <text id="PANOPTICON" font-family="Roboto-Black, Roboto" font-size="64" font-weight="700" fill="#268EA9">
+            <tspan x="0" y="215">PANOPTICON</tspan>
+        </text>
+        <circle id="Oval-2" fill="#268EA9" cx="201" cy="73" r="13"></circle>
+    </g>
+</svg>

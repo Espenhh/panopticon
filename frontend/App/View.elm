@@ -1,7 +1,7 @@
 module App.View exposing (view)
 
-import Html exposing (Html, div, text, a)
-import Html.Attributes exposing (class, href)
+import Html exposing (Html, div, text, a, img)
+import Html.Attributes exposing (class, href, src)
 import Components.View
 import Detail.View
 import App.Model exposing (..)
@@ -18,7 +18,9 @@ view model =
     in
         div [ class "app" ]
             [ div [ class "app__sidebar" ]
-                [ a [ href <| toHash Components, class "app__home" ] [ text "PANOPTICON" ] ]
+                [ a [ href <| toHash Components, class "app__home" ]
+                    [ img [ src "panopticon.svg", class "app__sidebar-logo" ] [] ]
+                ]
             , div [ class "app__container" ] [ page ]
             ]
 

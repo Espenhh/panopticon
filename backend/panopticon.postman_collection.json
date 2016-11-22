@@ -14,7 +14,7 @@
 				{
 					"name": "Update status",
 					"request": {
-						"url": "localhost:8080/external/status",
+						"url": "localhost:8080/api/external/status",
 						"method": "POST",
 						"header": [
 							{
@@ -40,7 +40,7 @@
 				{
 					"name": "Get all components",
 					"request": {
-						"url": "localhost:8080/internal/status",
+						"url": "localhost:8080/api/internal/status",
 						"method": "GET",
 						"header": [
 							{
@@ -60,7 +60,7 @@
 				{
 					"name": "Get single component",
 					"request": {
-						"url": "localhost:8080/internal/status/prod/nsb-salgsapper/MTL/linuxserver107",
+						"url": "localhost:8080/api/internal/status/prod/nsb-salgsapper/MTL/linuxserver107",
 						"method": "GET",
 						"header": [
 							{

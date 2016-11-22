@@ -15,7 +15,7 @@ view model =
             List.map viewMetric model.measurements
     in
         div [ class "detail" ]
-            [ text model.component
+            [ text <| model.component ++ " » " ++ model.server
             , div [ class "detail__metrics" ] metrics
             ]
 

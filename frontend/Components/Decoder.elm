@@ -13,7 +13,12 @@ decoder =
 
 decodeModel : List Component.Model.Model -> Decoder Model
 decodeModel ls =
-    succeed <| Model <| List.map partitionEnv <| groupWhile env ls
+    succeed <| Model <| List.map partitionEnv <| groupWhile env <| List.sortBy sort ls
+
+
+sort : Component.Model.Model -> String
+sort s =
+    s.environment
 
 
 partitionEnv : List Component.Model.Model -> Environment

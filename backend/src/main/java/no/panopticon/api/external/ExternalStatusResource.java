@@ -13,7 +13,7 @@ import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.CREATED;
 
 @Component
-@Path("/external/status")
+@Path("/api/external/status")
 public class ExternalStatusResource {
 
     private final StatusStorage statusStorage;

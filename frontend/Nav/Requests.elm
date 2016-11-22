@@ -9,20 +9,15 @@ import Json.Decode exposing (Decoder)
 import String
 
 
-baseUrl : String
-baseUrl =
-    "http://localhost:8080"
-
-
-getSystemStatus : Cmd App.Messages.Msg
-getSystemStatus =
+getSystemStatus : String -> Cmd App.Messages.Msg
+getSystemStatus baseUrl =
     Http.send App.Messages.SystemStatus <|
         jsonGet Components.Decoder.decoder <|
             url [ baseUrl, "internal", "status" ]
 
 
-getDetails : String -> String -> String -> String -> Cmd Detail.Messages.Msg
-getDetails env system component server =
+getDetails : String -> String -> String -> String -> String -> Cmd Detail.Messages.Msg
+getDetails baseUrl env system component server =
     Http.send Detail.Messages.Get <|
         jsonGet Detail.Decoder.decoder <|
             url [ baseUrl, "internal", "status", env, system, component, server ]

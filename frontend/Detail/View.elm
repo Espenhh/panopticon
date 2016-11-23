@@ -4,7 +4,7 @@ import Detail.Model exposing (..)
 import Detail.Messages exposing (..)
 import Metric.Model
 import Metric.View
-import Html exposing (Html, div, text)
+import Html exposing (Html, div, text, h1, h2)
 import Html.Attributes exposing (class)
 
 
@@ -15,7 +15,10 @@ view model =
             List.map viewMetric model.measurements
     in
         div [ class "detail" ]
-            [ text <| model.component ++ " » " ++ model.server
+            [ div [ class "detail__header" ]
+                [ h1 [ class "detail__component" ] [ text <| model.component ++ " (" ++ model.environment ++ ")" ]
+                , h2 [ class "detail__server " ] [ text model.server ]
+                ]
             , div [ class "detail__metrics" ] metrics
             ]
 

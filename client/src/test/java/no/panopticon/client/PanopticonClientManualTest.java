@@ -11,12 +11,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Ignore("This is a manual test. Run it from the IDE to test against production :)")
 public class PanopticonClientManualTest {
 
     private static final PanopticonClient CLIENT = new PanopticonClient("http://d3554xabuzco0h.cloudfront.net/api");
 
     @Test
-    @Ignore("This is a manual test. Run it from the IDE to test against production :)")
     public void test_add_component_status() {
 
         List<Measurement> measurements = Arrays.asList(

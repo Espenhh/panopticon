@@ -3,13 +3,13 @@ package no.panopticon.client;
 import no.panopticon.client.model.ComponentInfo;
 import no.panopticon.client.model.Measurement;
 import no.panopticon.client.model.Status;
+import no.panopticon.client.sensor.Sensor;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class PanopticonClientManualTest {
 
@@ -33,7 +33,7 @@ public class PanopticonClientManualTest {
     @Test
     public void test_run_scheduled_task() throws InterruptedException {
         ComponentInfo componentInfo = new ComponentInfo("prod", "NSB mobilapps", "MTL", "linuxserver349");
-        List<Supplier<List<Measurement>>> sensors = Arrays.asList(
+        List<Sensor> sensors = Arrays.asList(
                 mockSystemSensor(),
                 mockJettySensor()
         );
@@ -42,7 +42,7 @@ public class PanopticonClientManualTest {
         Thread.sleep(1000 * 60 * 10);
     }
 
-    private Supplier<List<Measurement>> mockSystemSensor() {
+    private Sensor mockSystemSensor() {
         return () -> {
 			List<Measurement> measurements = new ArrayList<>();
 			measurements.add(new Measurement("system.load", "INFO", "1.23", 1));
@@ -51,7 +51,7 @@ public class PanopticonClientManualTest {
 		};
     }
 
-    private Supplier<List<Measurement>> mockJettySensor() {
+    private Sensor mockJettySensor() {
         return () -> {
             List<Measurement> measurements = new ArrayList<>();
             measurements.add(new Measurement("jetty.threads", "INFO", "100 av 768 (14%)", 100));

@@ -3,6 +3,7 @@ package no.panopticon.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.panopticon.client.model.ComponentInfo;
 import no.panopticon.client.model.Measurement;
+import no.panopticon.client.sensor.Sensor;
 import no.panopticon.client.model.Status;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -18,7 +19,6 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 import static java.util.stream.Collectors.toList;
 
@@ -63,11 +63,11 @@ public class PanopticonClient {
         }
     }
 
-    public void startScheduledStatusUpdate(ComponentInfo componentInfo, List<Supplier<List<Measurement>>> sensors) {
+    public void startScheduledStatusUpdate(ComponentInfo componentInfo, List<Sensor> sensors) {
         Runnable runnable = () -> {
             long before = System.currentTimeMillis();
             List<Measurement> measurements = sensors.parallelStream()
-					.map(Supplier::get)
+					.map(Sensor::measure)
 					.flatMap(List::stream)
 					.collect(toList());
             long afterMeasurements = System.currentTimeMillis();

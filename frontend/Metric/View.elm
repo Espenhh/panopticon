@@ -11,7 +11,7 @@ statusIcon status =
     "metric__status metric__status--"
         ++ case status of
             Info ->
-                "info icon-like"
+                "normal icon-like"
 
             Warn ->
                 "warning icon-exclamation"

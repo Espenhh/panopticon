@@ -1,6 +1,8 @@
 package no.panopticon.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import no.panopticon.client.model.ComponentInfo;
+import no.panopticon.client.model.Measurement;
 import no.panopticon.client.model.Status;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -12,12 +14,20 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+
+import static java.util.stream.Collectors.toList;
 
 public class PanopticonClient {
 
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ScheduledExecutorService SCHEDULER = Executors.newScheduledThreadPool(1);
 
     private final String baseUri;
     private CloseableHttpClient client;
@@ -27,13 +37,13 @@ public class PanopticonClient {
         client = HttpClientBuilder.create().build();
     }
 
-    public void update(Status status) {
+    public boolean update(Status status) {
         try {
             String json = OBJECT_MAPPER.writeValueAsString(status);
             String uri = baseUri + "/external/status";
 
-            LOG.info("Updating status: " + uri);
-            LOG.info("...with JSON: " + json);
+            LOG.debug("Updating status: " + uri);
+            LOG.debug("...with JSON: " + json);
 
             BasicHttpEntity entity = new BasicHttpEntity();
             entity.setContent(new ByteArrayInputStream(json.getBytes()));
@@ -44,9 +54,35 @@ public class PanopticonClient {
 
             CloseableHttpResponse response = client.execute(httpPost);
 
-            LOG.info("Response: " + response.getStatusLine().getStatusCode());
+            LOG.debug("Response: " + response.getStatusLine().getStatusCode());
+
+            return response.getStatusLine().getStatusCode() < 300;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            LOG.warn("Error when updating status", e);
+            return false;
         }
+    }
+
+    public void startScheduledStatusUpdate(ComponentInfo componentInfo, List<Supplier<List<Measurement>>> sensors) {
+        Runnable runnable = () -> {
+            long before = System.currentTimeMillis();
+            List<Measurement> measurements = sensors.parallelStream()
+					.map(Supplier::get)
+					.flatMap(List::stream)
+					.collect(toList());
+            long afterMeasurements = System.currentTimeMillis();
+            boolean success = update(new Status(componentInfo, measurements));
+            long afterStatusPost = System.currentTimeMillis();
+
+            long measurementTime = afterMeasurements-before;
+            long statuspostTime = afterStatusPost-afterMeasurements;
+
+            if(success) {
+                LOG.info("Sent status update with " + measurements.size() + " measurements. Fetch measurements took " + measurementTime + "ms. Posting status took " + statuspostTime + "ms.");
+            } else {
+                LOG.warn("Could not update status");
+            }
+        };
+        SCHEDULER.scheduleWithFixedDelay(runnable, 0, 1, TimeUnit.MINUTES);
     }
 }

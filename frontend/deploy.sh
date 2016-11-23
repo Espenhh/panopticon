@@ -2,4 +2,4 @@
 
 npm run build
 
-aws s3 sync ./dist/ s3://panopticon-frontend-dev --region=eu-central-1 --delete
+aws s3 sync ./dist/ s3://panopticon-prod --region=eu-central-1 --delete

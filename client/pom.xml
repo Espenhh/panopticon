@@ -78,5 +78,9 @@
         </plugins>
     </build>
 
+    <scm>
+        <developerConnection>scm:git:git@github.com:Espenhh/panopticon.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 
 </project>

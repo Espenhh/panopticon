@@ -12,8 +12,8 @@ decoder =
 
 
 decodeModel : List Component.Model.Model -> Decoder Model
-decodeModel ls =
-    succeed <| Model <| List.map partitionEnv <| groupWhile env <| List.sortBy sort ls
+decodeModel =
+    succeed << Model << List.map partitionEnv << groupWhile env << List.sortBy .environment
 
 
 sort : Component.Model.Model -> String

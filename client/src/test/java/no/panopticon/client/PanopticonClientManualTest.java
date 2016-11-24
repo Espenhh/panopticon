@@ -14,7 +14,7 @@ import java.util.List;
 @Ignore("This is a manual test. Run it from the IDE to test against production :)")
 public class PanopticonClientManualTest {
 
-    private static final PanopticonClient CLIENT = new PanopticonClient("http://d3554xabuzco0h.cloudfront.net/api");
+    private static final PanopticonClient CLIENT = new PanopticonClient("http://example.com/domainhere");
 
     @Test
     public void test_add_component_status() {
@@ -24,7 +24,7 @@ public class PanopticonClientManualTest {
                 new Measurement("memory.usage", "WARN", "200MB av 560MB (40%)", 200)
         );
 
-        Status status = new Status("prod", "NSB mobilapps", "MTL", "linuxserver349", measurements);
+        Status status = new Status("prod", "Mobile system", "mobile-backend", "server123", measurements);
 
         CLIENT.update(status);
 
@@ -32,7 +32,7 @@ public class PanopticonClientManualTest {
 
     @Test
     public void test_run_scheduled_task() throws InterruptedException {
-        ComponentInfo componentInfo = new ComponentInfo("prod", "NSB mobilapps", "MTL", "linuxserver349");
+        ComponentInfo componentInfo = new ComponentInfo("prod", "Mobile system", "mobile-backend", "server123");
         List<Sensor> sensors = Arrays.asList(
                 mockSystemSensor(),
                 mockJettySensor()

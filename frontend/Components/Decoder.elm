@@ -16,11 +16,6 @@ decodeModel =
     succeed << Model << List.map partitionEnv << groupWhile env << List.sortBy .environment
 
 
-sort : Component.Model.Model -> String
-sort s =
-    s.environment
-
-
 partitionEnv : List Component.Model.Model -> Environment
 partitionEnv components =
     case List.head components of

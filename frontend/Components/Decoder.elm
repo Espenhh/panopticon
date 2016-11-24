@@ -22,13 +22,13 @@ sort s =
 
 
 partitionEnv : List Component.Model.Model -> Environment
-partitionEnv ls =
-    case List.head ls of
+partitionEnv components =
+    case List.head components of
         Just component ->
-            Environment component.environment ls
+            Environment component.environment <| List.sortBy .component components
 
         Nothing ->
-            Environment "Unknown" ls
+            Environment "Unknown" components
 
 
 groupWhile : (a -> a -> Bool) -> List a -> List (List a)

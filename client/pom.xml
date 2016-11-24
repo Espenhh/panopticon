@@ -57,6 +57,17 @@
 
     </dependencies>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>nexus-snapshots</id>
+            <url>http://ec2-54-93-84-149.eu-central-1.compute.amazonaws.com:8081/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>nexus-release</id>
+            <url>http://ec2-54-93-84-149.eu-central-1.compute.amazonaws.com:8081/nexus/content/repositories/releases/</url>
+        </repository>
+    </distributionManagement>
+
     <build>
         <plugins>
 

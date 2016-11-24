@@ -3,8 +3,9 @@ package no.panopticon.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.panopticon.client.model.ComponentInfo;
 import no.panopticon.client.model.Measurement;
-import no.panopticon.client.sensor.Sensor;
 import no.panopticon.client.model.Status;
+import no.panopticon.client.sensor.Sensor;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.BasicHttpEntity;
@@ -26,6 +27,8 @@ public class PanopticonClient {
 
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
+    private static final int TIMEOUT = 10_000;
+
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final ScheduledExecutorService SCHEDULER = Executors.newScheduledThreadPool(1);
 
@@ -34,7 +37,19 @@ public class PanopticonClient {
 
     public PanopticonClient(String baseUri) {
         this.baseUri = baseUri;
-        client = HttpClientBuilder.create().build();
+        client = createHttpClient();
+    }
+
+    private CloseableHttpClient createHttpClient() {
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setSocketTimeout(TIMEOUT)
+                .setConnectTimeout(TIMEOUT)
+                .setConnectionRequestTimeout(TIMEOUT)
+                .build();
+
+        return HttpClientBuilder.create()
+                .setDefaultRequestConfig(requestConfig)
+                .build();
     }
 
     public boolean update(Status status) {
@@ -67,17 +82,17 @@ public class PanopticonClient {
         Runnable runnable = () -> {
             long before = System.currentTimeMillis();
             List<Measurement> measurements = sensors.parallelStream()
-					.map(Sensor::measure)
-					.flatMap(List::stream)
-					.collect(toList());
+                    .map(Sensor::measure)
+                    .flatMap(List::stream)
+                    .collect(toList());
             long afterMeasurements = System.currentTimeMillis();
             boolean success = update(new Status(componentInfo, measurements));
             long afterStatusPost = System.currentTimeMillis();
 
-            long measurementTime = afterMeasurements-before;
-            long statuspostTime = afterStatusPost-afterMeasurements;
+            long measurementTime = afterMeasurements - before;
+            long statuspostTime = afterStatusPost - afterMeasurements;
 
-            if(success) {
+            if (success) {
                 LOG.info("Sent status update with " + measurements.size() + " measurements. Fetch measurements took " + measurementTime + "ms. Posting status took " + statuspostTime + "ms.");
             } else {
                 LOG.warn("Could not update status");

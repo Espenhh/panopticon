@@ -9,7 +9,7 @@
 
 .component {
     align-items: center;
-    background: #f6f6f6;
+    background: @list-background;
     color: black;
     display: flex;
     font-size: 1.4rem;
@@ -17,19 +17,18 @@
     width: 100%;
 
     &__status {
-        padding: 20px 40px 20px 20px;
-        width: 50px;
+        padding: 20px;
 
         &--normal {
-            background: #49e090;
+            background: @status-normal;
         }
 
         &--warning {
-            background: #ebc44d;
+            background: @status-warning;
         }
 
         &--error {
-            background: #ee735d;
+            background: @status-error;
         }
     }
 
@@ -41,6 +40,20 @@
     }
 
     &:nth-child(odd) {
-        background: #e6e6e6;
+        background: darken(@list-background, 7%);
+
+        .component__status {
+            &--normal {
+                background: darken(@status-normal, 7%);
+            }
+
+            &--warning {
+                background: darken(@status-warning, 7%);
+            }
+
+            &--error {
+                background: darken(@status-error, 7%);
+            }
+        }
     }
 }

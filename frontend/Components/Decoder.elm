@@ -25,10 +25,21 @@ partitionEnv : List Component.Model.Model -> Environment
 partitionEnv components =
     case List.head components of
         Just component ->
-            Environment component.environment <| List.sortBy .component components
+            Environment component.environment <|
+                List.sortWith componentSorter components
 
         Nothing ->
             Environment "Unknown" components
+
+
+componentSorter : Component.Model.Model -> Component.Model.Model -> Order
+componentSorter a b =
+    case compare a.component b.component of
+        EQ ->
+            compare a.server b.server
+
+        a ->
+            a
 
 
 groupWhile : (a -> a -> Bool) -> List a -> List (List a)

@@ -177,7 +177,7 @@
 
     <scm>
         <connection>scm:git:git@github.com:Espenhh/panopticon.git</connection>
-        <developerConnection>scm:git:ssh://github.com:Espenhh/panopticon.git</developerConnection>
+        <developerConnection>scm:git:git@github.com:Espenhh/panopticon.git</developerConnection>
         <url>http://github.com/Espenhh/panopticon/tree/master</url>
     </scm>
 

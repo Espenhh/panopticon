@@ -12,23 +12,29 @@ decoder =
 
 
 decodeModel : List Component.Model.Model -> Decoder Model
-decodeModel ls =
-    succeed <| Model <| List.map partitionEnv <| groupWhile env <| List.sortBy sort ls
-
-
-sort : Component.Model.Model -> String
-sort s =
-    s.environment
+decodeModel =
+    succeed << Model << List.map partitionEnv << groupWhile env << List.sortBy .environment
 
 
 partitionEnv : List Component.Model.Model -> Environment
-partitionEnv ls =
-    case List.head ls of
+partitionEnv components =
+    case List.head components of
         Just component ->
-            Environment component.environment ls
+            Environment component.environment <|
+                List.sortWith componentSorter components
 
         Nothing ->
-            Environment "Unknown" ls
+            Environment "Unknown" components
+
+
+componentSorter : Component.Model.Model -> Component.Model.Model -> Order
+componentSorter a b =
+    case compare a.component b.component of
+        EQ ->
+            compare a.server b.server
+
+        a ->
+            a
 
 
 groupWhile : (a -> a -> Bool) -> List a -> List (List a)

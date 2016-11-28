@@ -9,6 +9,35 @@
 
     <name>panopticon-client</name>
     <description>The next great monitoring system - client lib</description>
+    <url>http://www.panopticon.pro</url>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Espen Herseth Halvorsen</name>
+            <email>espen@panopticon.pro</email>
+            <organization>Panopticon</organization>
+            <organizationUrl>http://www.panopticon.pro</organizationUrl>
+        </developer>
+        <developer>
+            <name>Bendik Solheim</name>
+            <email>bendik@panopticon.pro</email>
+            <organization>Panopticon</organization>
+            <organizationUrl>http://www.panopticon.pro</organizationUrl>
+        </developer>
+        <developer>
+            <name>Kjetil Valle</name>
+            <email>kjetil@panopticon.pro</email>
+            <organization>Panopticon</organization>
+            <organizationUrl>http://www.panopticon.pro</organizationUrl>
+        </developer>
+    </developers>
 
     <properties>
         <java.version>1.8</java.version>
@@ -147,8 +176,9 @@
     </distributionManagement>
 
     <scm>
-        <developerConnection>scm:git:git@github.com:Espenhh/panopticon.git</developerConnection>
-        <tag>HEAD</tag>
+        <connection>scm:git:git@github.com:Espenhh/panopticon.git</connection>
+        <developerConnection>scm:git:ssh://github.com:Espenhh/panopticon.git</developerConnection>
+        <url>http://github.com/Espenhh/panopticon/tree/master</url>
     </scm>
 
 </project>

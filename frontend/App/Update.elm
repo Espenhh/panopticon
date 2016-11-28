@@ -39,7 +39,10 @@ update msg model =
 
         DetailMsg detailMsg ->
             let
-                detailModel =
+                ( detailModel, cmd ) =
                     Detail.Update.update detailMsg model.detail
+
+                mappedCmd =
+                    Cmd.map DetailMsg cmd
             in
-                ( { model | detail = detailModel }, Cmd.none )
+                ( { model | detail = detailModel }, mappedCmd )

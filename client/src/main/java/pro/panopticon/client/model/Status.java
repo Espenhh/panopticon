@@ -1,4 +1,4 @@
-package no.panopticon.client.model;
+package pro.panopticon.client.model;
 
 import java.util.List;
 

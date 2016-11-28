@@ -1,8 +1,8 @@
-package no.panopticon.client.sensor.impl;
+package pro.panopticon.client.sensor.impl;
 
-import no.panopticon.client.model.Measurement;
-import no.panopticon.client.sensor.Sensor;
-import no.panopticon.client.util.SystemStatus;
+import pro.panopticon.client.model.Measurement;
+import pro.panopticon.client.sensor.Sensor;
+import pro.panopticon.client.util.SystemStatus;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;

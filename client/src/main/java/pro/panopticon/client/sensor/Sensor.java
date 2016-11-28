@@ -1,6 +1,6 @@
-package no.panopticon.client.sensor;
+package pro.panopticon.client.sensor;
 
-import no.panopticon.client.model.Measurement;
+import pro.panopticon.client.model.Measurement;
 
 import java.util.List;
 

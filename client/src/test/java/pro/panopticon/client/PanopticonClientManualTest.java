@@ -1,9 +1,9 @@
-package no.panopticon.client;
+package pro.panopticon.client;
 
-import no.panopticon.client.model.ComponentInfo;
-import no.panopticon.client.model.Measurement;
-import no.panopticon.client.model.Status;
-import no.panopticon.client.sensor.Sensor;
+import pro.panopticon.client.model.ComponentInfo;
+import pro.panopticon.client.model.Measurement;
+import pro.panopticon.client.model.Status;
+import pro.panopticon.client.sensor.Sensor;
 import org.junit.Ignore;
 import org.junit.Test;
 

@@ -1,10 +1,10 @@
-package no.panopticon.client;
+package pro.panopticon.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import no.panopticon.client.model.ComponentInfo;
-import no.panopticon.client.model.Measurement;
-import no.panopticon.client.model.Status;
-import no.panopticon.client.sensor.Sensor;
+import pro.panopticon.client.model.ComponentInfo;
+import pro.panopticon.client.model.Measurement;
+import pro.panopticon.client.model.Status;
+import pro.panopticon.client.sensor.Sensor;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;

@@ -1,4 +1,4 @@
-package no.panopticon.client.util;
+package pro.panopticon.client.util;
 
 import com.sun.management.UnixOperatingSystemMXBean;
 import org.slf4j.Logger;

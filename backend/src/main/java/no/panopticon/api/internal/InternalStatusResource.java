@@ -4,11 +4,10 @@ import no.panopticon.storage.StatusStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 @Component
@@ -25,11 +24,15 @@ public class InternalStatusResource {
     }
 
     @GET
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
     public Response getAllComponents() {
         return Response.ok(statusStorage.getAllRunningComponents()).build();
     }
 
     @GET
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
     @Path("/{environment}/{system}/{component}/{server}")
     public Response getSingleComponent(
             @PathParam("environment") String environment,

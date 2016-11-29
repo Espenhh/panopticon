@@ -9,9 +9,42 @@ panopticon is a monitoring system for all your applications that is dead simple 
 1. Write your first measurement
 1. Your application is now listed in your personal dashboard! 🎉
 
-## Deploying panopticon
+## Configure AWS
 
-TODO 🙂
+Install `aws` and `eb` command line tools:
+
+```
+brew install aws
+brew install eb
+```
+
+Configure a AWS profile for panopticon:
+
+
+`~.aws/credentials`
+
+```
+[panopticon]
+aws_access_key_id = <ADD YOURS HERE>
+aws_secret_access_key = <ADD YOURS HERE>
+```
+
+`~.aws/config`
+
+```
+[default]
+region = eu-central-1
+```
+
+Run `eb init` in /backend
+
+## Deployment
+
+See the "Configure AWS" section first
+
+- `cd frontend && ./deploy.sh`
+- `cd backend && ./deploy.sh`
+
 
 ## Running panopticon locally
 

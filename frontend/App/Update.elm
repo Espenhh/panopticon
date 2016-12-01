@@ -11,15 +11,8 @@ import Nav.Model exposing (..)
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        UpdateUrl (Components as page) ->
-            ( { model | page = page }, getSystemStatus model.flags.url )
-
-        UpdateUrl ((Component env system component server) as page) ->
-            let
-                cmd =
-                    Cmd.map DetailMsg <| getDetails model.flags.url env system component server
-            in
-                ( { model | page = page }, cmd )
+        UpdateUrl page ->
+            updatePage page model
 
         GetSystemStatus ->
             ( model, getSystemStatus model.flags.url )
@@ -46,3 +39,17 @@ update msg model =
                     Cmd.map DetailMsg cmd
             in
                 ( { model | detail = detailModel }, mappedCmd )
+
+
+updatePage : Page -> Model -> ( Model, Cmd Msg )
+updatePage page model =
+    case page of
+        Components as page ->
+            ( { model | page = page }, getSystemStatus model.flags.url )
+
+        (Component env system component server) as page ->
+            let
+                cmd =
+                    Cmd.map DetailMsg <| getDetails model.flags.url env system component server
+            in
+                ( { model | page = page }, cmd )

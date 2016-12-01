@@ -4,6 +4,7 @@ import App.Messages exposing (..)
 import App.Model exposing (..)
 import Components.Update
 import Detail.Update
+import Detail.Model
 import Nav.Requests exposing (getSystemStatus, getDetails)
 import Nav.Model exposing (..)
 
@@ -42,14 +43,28 @@ update msg model =
 
 
 updatePage : Page -> Model -> ( Model, Cmd Msg )
-updatePage page model =
-    case page of
-        Components as page ->
-            ( { model | page = page }, getSystemStatus model.flags.url )
+updatePage page m =
+    let
+        model =
+            leftPage m.page m
+    in
+        case page of
+            Components as page ->
+                ( { model | page = page }, getSystemStatus model.flags.url )
 
-        (Component env system component server) as page ->
-            let
-                cmd =
-                    Cmd.map DetailMsg <| getDetails model.flags.url env system component server
-            in
-                ( { model | page = page }, cmd )
+            (Component env system component server) as page ->
+                let
+                    cmd =
+                        Cmd.map DetailMsg <| getDetails model.flags.url env system component server
+                in
+                    ( { model | page = page }, cmd )
+
+
+leftPage : Page -> Model -> Model
+leftPage oldPage model =
+    case oldPage of
+        Component _ _ _ _ ->
+            { model | detail = Detail.Model.init }
+
+        _ ->
+            model

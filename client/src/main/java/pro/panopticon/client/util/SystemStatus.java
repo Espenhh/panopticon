@@ -92,6 +92,13 @@ public class SystemStatus {
 		return -1;
 	}
 
+    public long maxFileHandles() {
+        if (osBean instanceof UnixOperatingSystemMXBean) {
+            return ((UnixOperatingSystemMXBean) osBean).getMaxFileDescriptorCount();
+        }
+        return -1;
+    }
+
 	private Optional<MemoryPoolMXBean> findBeanWithName(final String... names) {
 
 		List<MemoryPoolMXBean> memoryPoolMXBeans = ManagementFactory.getMemoryPoolMXBeans();

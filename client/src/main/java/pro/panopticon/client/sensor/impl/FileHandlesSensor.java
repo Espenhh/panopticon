@@ -8,15 +8,39 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileHandlesSensor implements Sensor {
+
+    private final long warnAfter;
+    private final long errorAfter;
+
+    public FileHandlesSensor(long warnAfter, long errorAfter) {
+        this.warnAfter = warnAfter;
+        this.errorAfter = errorAfter;
+    }
+
     @Override
     public List<Measurement> measure() {
         SystemStatus s = new SystemStatus();
 
         List<Measurement> measurements = new ArrayList<>();
 
-        String displayValue = s.openFileHandles() + " handles";
-        measurements.add(new Measurement("filehandles", "INFO", displayValue, s.openFileHandles()));
+        long open = s.openFileHandles();
+        long max = s.maxFileHandles();
+        double percent = ((double) open / (double) max) * 100;
+        String displayValue = String.format("%s of %s filehandles used (%.2f%%)", open, max, percent);
+
+        measurements.add(new Measurement("filehandles", statusFromOpenFileHandles(open), displayValue, open));
 
         return measurements;
     }
+
+    private String statusFromOpenFileHandles(long open) {
+        if (open >= errorAfter) {
+            return "ERROR";
+        } else if (open >= warnAfter) {
+            return "WARN";
+        } else {
+            return "INFO";
+        }
+    }
+
 }

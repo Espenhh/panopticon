@@ -1,0 +1,6 @@
+global:
+  application_name: panopticon
+  default_platform: java-8
+  default_region: eu-central-1
+deploy:
+  artifact: app.zip

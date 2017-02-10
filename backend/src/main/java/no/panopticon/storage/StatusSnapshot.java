@@ -4,7 +4,7 @@ import java.util.List;
 
 public class StatusSnapshot {
 
-    private List<Measurement> measurements;
+    private final List<Measurement> measurements;
 
     public StatusSnapshot(List<Measurement> measurements) {
         this.measurements = measurements;

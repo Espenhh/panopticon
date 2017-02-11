@@ -7,6 +7,7 @@ import com.ullink.slack.simpleslackapi.SlackSession;
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory;
 import no.panopticon.config.SlackConfiguration;
 import no.panopticon.storage.RunningUnit;
+import no.panopticon.storage.StatusSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,7 @@ public class SlackClient {
     }
 
     private void connectIfNessesary() {
-        if(!slack.isConnected()) {
+        if (!slack.isConnected()) {
             try {
                 slack.connect();
             } catch (IOException e) {
@@ -49,6 +50,14 @@ public class SlackClient {
 
     public void indicateReturnedRunningUnit(RunningUnit runningUnit) {
         slackMessage(runningUnit, GREEN, "Instansen som var forsvunnet har nå rapportert inn status igjen. Back in business, baby!");
+    }
+
+    public void alertAboutStatus(RunningUnit unit, StatusSnapshot.Measurement measurement) {
+        String color = GREEN;
+        if (measurement.getStatus().equals("WARN")) color = YELLOW;
+        if (measurement.getStatus().equals("ERROR")) color = RED;
+        String message = measurement.getKey() + ": " + measurement.getDisplayValue();
+        slackMessage(unit, color, message);
     }
 
     private void slackMessage(RunningUnit runningUnit, String color, String text) {

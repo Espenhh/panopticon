@@ -30,6 +30,10 @@
         &--error {
             background: @status-error;
         }
+
+        &--missing {
+            background: @status-missing;
+        }
     }
 
     &__name {
@@ -53,6 +57,10 @@
 
             &--error {
                 background: darken(@status-error, 7%);
+            }
+
+             &--missing {
+                background: darken(@status-missing, 7%);
             }
         }
     }

@@ -19,6 +19,10 @@
         &--error {
             background: @status-error;
         }
+
+        &--missing {
+            background: @status-missing;
+        }
     }
 
     &__key {
@@ -40,25 +44,11 @@
             &--error {
                 background: darken(@status-error, 7%);
             }
+
+            &--missing {
+                background: darken(@status-missing, 7%);
+            }
         }
     }
-
-    // &:nth-child(odd) {
-    //     background: darken(@list-background, 10%);
-
-    //     .component__status {
-    //         &--normal {
-    //             background: darken(@status-normal, 7%);
-    //         }
-
-    //         &--warning {
-    //             background: darken(@status-warning, 7%);
-    //         }
-
-    //         &--error {
-    //             background: darken(@status-normal, 7%);
-    //         }
-    //     }
-    // }
 
 }

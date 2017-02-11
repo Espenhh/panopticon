@@ -1,4 +1,4 @@
-package no.panopticon.schedulers;
+package no.panopticon.alerters;
 
 import no.panopticon.integrations.slack.SlackClient;
 import no.panopticon.storage.RunningUnit;
@@ -18,7 +18,7 @@ import static java.util.stream.Collectors.toList;
 
 
 @Service
-public class MissingRunningUnitsChecker {
+public class MissingRunningUnitsAlerter {
 
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
     private final SlackClient slackClient;
@@ -30,7 +30,7 @@ public class MissingRunningUnitsChecker {
     private static final ScheduledExecutorService SCHEDULER = Executors.newScheduledThreadPool(1);
 
     @Autowired
-    public MissingRunningUnitsChecker(SlackClient slackClient) {
+    public MissingRunningUnitsAlerter(SlackClient slackClient) {
         this.slackClient = slackClient;
         SCHEDULER.scheduleAtFixedRate(this::checkForMissingRunningUnits, 0, 1, TimeUnit.MINUTES);
     }

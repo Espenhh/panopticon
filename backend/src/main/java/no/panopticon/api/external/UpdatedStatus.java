@@ -3,6 +3,7 @@ package no.panopticon.api.external;
 import no.panopticon.storage.RunningUnit;
 import no.panopticon.storage.StatusSnapshot;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -31,7 +32,7 @@ public class UpdatedStatus {
     }
 
     public StatusSnapshot toStatusSnapshot() {
-        return new StatusSnapshot(
+        return new StatusSnapshot(LocalDateTime.now(),
                 measurements.stream()
                         .map(m -> new StatusSnapshot.Measurement(m.key, m.status, m.displayValue, m.numericValue))
                         .collect(toList())

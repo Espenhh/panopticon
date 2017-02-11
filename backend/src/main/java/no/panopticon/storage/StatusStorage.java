@@ -1,9 +1,10 @@
 package no.panopticon.storage;
 
+import no.panopticon.alerters.StatusAlerter;
 import no.panopticon.api.external.UpdatedStatus;
 import no.panopticon.api.internal.UnitDetails;
 import no.panopticon.api.internal.UnitSummary;
-import no.panopticon.schedulers.MissingRunningUnitsChecker;
+import no.panopticon.alerters.MissingRunningUnitsAlerter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,20 +22,23 @@ public class StatusStorage {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatusStorage.class);
 
-    private final MissingRunningUnitsChecker missingRunningUnitsChecker;
+    private final MissingRunningUnitsAlerter missingRunningUnitsAlerter;
+    private final StatusAlerter statusAlerter;
 
     private ConcurrentMap<RunningUnit, StatusSnapshot> currentStatuses = new ConcurrentHashMap<>();
 
     @Autowired
-    public StatusStorage(MissingRunningUnitsChecker missingRunningUnitsChecker) {
-        this.missingRunningUnitsChecker = missingRunningUnitsChecker;
+    public StatusStorage(MissingRunningUnitsAlerter missingRunningUnitsAlerter, StatusAlerter statusAlerter) {
+        this.missingRunningUnitsAlerter = missingRunningUnitsAlerter;
+        this.statusAlerter = statusAlerter;
     }
 
     public void processUpdatedStatus(UpdatedStatus updatedStatus) {
         RunningUnit unit = updatedStatus.toRunningUnit();
         StatusSnapshot snapshot = updatedStatus.toStatusSnapshot();
         currentStatuses.put(unit, snapshot);
-        missingRunningUnitsChecker.checkin(unit);
+        missingRunningUnitsAlerter.checkin(unit);
+        statusAlerter.handle(unit, snapshot);
         LOG.info("Updated " + unit + " with " + snapshot);
     }
 

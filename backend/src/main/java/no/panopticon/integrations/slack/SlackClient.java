@@ -69,7 +69,7 @@ public class SlackClient {
 
         SlackAttachment attachment = new SlackAttachment(name, "", text, null);
         attachment.setColor(color);
-        attachment.setFooter("Se alle detaljer i Panopticon: http://nsb.panopticon.pro");
+        attachment.setFooter("Se alle detaljer i Panopticon: " + slackConfiguration.panopticonurl);
         attachment.addMarkdownIn("text, footer");
 
         SlackPreparedMessage message = new SlackPreparedMessage.Builder()

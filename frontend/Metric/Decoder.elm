@@ -17,6 +17,9 @@ decoder =
 decodeStatus : String -> Decoder Status
 decodeStatus status =
     case status of
+        "MISSING" ->
+            succeed Missing
+
         "INFO" ->
             succeed Info
 

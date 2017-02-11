@@ -13,3 +13,4 @@ type Status
     = Info
     | Warn
     | Error
+    | Missing

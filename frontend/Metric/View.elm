@@ -10,6 +10,9 @@ statusIcon : Status -> String
 statusIcon status =
     "metric__status metric__status--"
         ++ case status of
+            Missing ->
+                "missing icon-exclamation"
+
             Info ->
                 "normal icon-like"
 

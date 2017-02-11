@@ -12,6 +12,9 @@ statusIcon : Status -> String
 statusIcon status =
     "component__status component__status--"
         ++ case status of
+            Missing ->
+                "missing icon-exclamation"
+
             Info ->
                 "normal icon-like"
 

@@ -40,7 +40,7 @@ public class StatusStorage {
 
     private void removeOldRunningUnits() {
         List<RunningUnit> toRemove = currentStatuses.entrySet().stream()
-                .filter(e -> e.getValue().isOlderThan(30, ChronoUnit.MINUTES))
+                .filter(e -> e.getValue().isOlderThan(24, ChronoUnit.HOURS))
                 .map(Map.Entry::getKey)
                 .collect(toList());
 

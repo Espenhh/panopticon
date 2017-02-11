@@ -19,7 +19,9 @@ public class StatusSnapshot {
     }
 
     public String mostSevereStatus() {
-        if (numberOfErrors() > 0) {
+        if(isOlderThan(5, ChronoUnit.MINUTES)) {
+            return "MISSING";
+        } else if (numberOfErrors() > 0) {
             return "ERROR";
         } else if (numberOfWarns() > 0) {
             return "WARN";

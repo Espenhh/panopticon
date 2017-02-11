@@ -1,12 +1,16 @@
 package no.panopticon.storage;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 public class StatusSnapshot {
 
+    private final LocalDateTime generated;
     private final List<Measurement> measurements;
 
-    public StatusSnapshot(List<Measurement> measurements) {
+    public StatusSnapshot(LocalDateTime generated, List<Measurement> measurements) {
+        this.generated = generated;
         this.measurements = measurements;
     }
 
@@ -30,6 +34,10 @@ public class StatusSnapshot {
 
     private long numberOfWarns() {
         return measurements.stream().filter(s -> s.status.equals("WARN")).count();
+    }
+
+    public boolean isOlderThan(int value, ChronoUnit unit) {
+        return generated.isBefore(LocalDateTime.now().minus(value, unit));
     }
 
     public static class Measurement {

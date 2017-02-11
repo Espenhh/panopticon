@@ -9,7 +9,7 @@ NC='\033[0m' # No Color
 REGION="eu-central-1"
 
 echo -e "${GREEN}Fetching your active buckets in region $REGION...${NC}"
-aws s3 ls --profile panopticon
+aws s3 ls --profile panopticon | grep panopticon
 echo ""
 echo -e "${GREEN}Type bucket name where you want to deploy panoopticon frontend:${NC}"
 read BUCKET_NAME

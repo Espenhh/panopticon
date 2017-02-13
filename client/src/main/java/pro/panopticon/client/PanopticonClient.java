@@ -67,11 +67,10 @@ public class PanopticonClient {
             httpPost.setEntity(entity);
             httpPost.setHeader("Content-Type", "application/json");
 
-            CloseableHttpResponse response = client.execute(httpPost);
-
-            LOG.debug("Response: " + response.getStatusLine().getStatusCode());
-
-            return response.getStatusLine().getStatusCode() < 300;
+            try (CloseableHttpResponse response = client.execute(httpPost)) {
+                LOG.debug("Response: " + response.getStatusLine().getStatusCode());
+                return response.getStatusLine().getStatusCode() < 300;
+            }
         } catch (IOException e) {
             LOG.warn("Error when updating status", e);
             return false;

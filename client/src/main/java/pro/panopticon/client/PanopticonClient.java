@@ -1,10 +1,6 @@
 package pro.panopticon.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import pro.panopticon.client.model.ComponentInfo;
-import pro.panopticon.client.model.Measurement;
-import pro.panopticon.client.model.Status;
-import pro.panopticon.client.sensor.Sensor;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -13,9 +9,14 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pro.panopticon.client.model.ComponentInfo;
+import pro.panopticon.client.model.Measurement;
+import pro.panopticon.client.model.Status;
+import pro.panopticon.client.sensor.Sensor;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -79,22 +80,33 @@ public class PanopticonClient {
 
     public void startScheduledStatusUpdate(ComponentInfo componentInfo, List<Sensor> sensors) {
         Runnable runnable = () -> {
-            long before = System.currentTimeMillis();
-            List<Measurement> measurements = sensors.parallelStream()
-                    .map(Sensor::measure)
-                    .flatMap(List::stream)
-                    .collect(toList());
-            long afterMeasurements = System.currentTimeMillis();
-            boolean success = update(new Status(componentInfo, measurements));
-            long afterStatusPost = System.currentTimeMillis();
+            try {
+                long before = System.currentTimeMillis();
+                List<Measurement> measurements = sensors.parallelStream()
+                        .map((sensor) -> {
+                            try {
+                                return sensor.measure();
+                            } catch (Exception e) {
+                                LOG.warn("Got error running sensor: " + sensor.getClass().getName(), e);
+                                return new ArrayList<Measurement>();
+                            }
+                        })
+                        .flatMap(List::stream)
+                        .collect(toList());
+                long afterMeasurements = System.currentTimeMillis();
+                boolean success = update(new Status(componentInfo, measurements));
+                long afterStatusPost = System.currentTimeMillis();
 
-            long measurementTime = afterMeasurements - before;
-            long statuspostTime = afterStatusPost - afterMeasurements;
+                long measurementTime = afterMeasurements - before;
+                long statuspostTime = afterStatusPost - afterMeasurements;
 
-            if (success) {
-                LOG.info("Sent status update with " + measurements.size() + " measurements. Fetch measurements took " + measurementTime + "ms. Posting status took " + statuspostTime + "ms.");
-            } else {
-                LOG.warn("Could not update status");
+                if (success) {
+                    LOG.info("Sent status update with " + measurements.size() + " measurements. Fetch measurements took " + measurementTime + "ms. Posting status took " + statuspostTime + "ms.");
+                } else {
+                    LOG.warn("Could not update status");
+                }
+            } catch (Exception e) {
+                LOG.warn("Got error when measuring sensors to send to panopticon", e);
             }
         };
         SCHEDULER.scheduleWithFixedDelay(runnable, 0, 1, TimeUnit.MINUTES);

@@ -6,6 +6,8 @@ import no.panopticon.storage.StatusSnapshot;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.Comparator.comparing;
+
 public class UnitDetails {
     public final String environment;
     public final String system;
@@ -27,7 +29,10 @@ public class UnitDetails {
                 unit.getSystem(),
                 unit.getComponent(),
                 unit.getServer(),
-                statusSnapshot.getMeasurements().stream().map(s -> new Measurement(s.getKey(), s.getStatus(), s.getDisplayValue(), s.getNumericValue())).collect(Collectors.toList())
+                statusSnapshot.getMeasurements().stream()
+                        .map(s -> new Measurement(s.getKey(), s.getStatus(), s.getDisplayValue(), s.getNumericValue()))
+                        .sorted(comparing(m -> m.key))
+                        .collect(Collectors.toList())
         );
     }
 

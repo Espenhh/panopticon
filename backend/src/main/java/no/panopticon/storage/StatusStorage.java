@@ -68,6 +68,7 @@ public class StatusStorage {
 
     public Optional<UnitDetails> getSingleComponent(String environment, String system, String component, String server) {
         RunningUnit unit = new RunningUnit(environment, system, component, server);
-        return Optional.ofNullable(currentStatuses.get(unit)).map(statusSnapshot -> UnitDetails.fromStoredStatus(unit, statusSnapshot));
+        return Optional.ofNullable(currentStatuses.get(unit))
+                .map(statusSnapshot -> UnitDetails.fromStoredStatus(unit, statusSnapshot));
     }
 }

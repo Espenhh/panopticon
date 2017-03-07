@@ -24,10 +24,18 @@
             background: @status-missing;
         }
     }
-
+  
     &__key {
         padding-left: 20px;
-        width: 550px;
+        width: 500px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    &__value {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     &:nth-child(odd) {
         background: darken(@list-background, 7%);

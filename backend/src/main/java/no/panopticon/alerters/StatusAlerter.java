@@ -1,5 +1,6 @@
 package no.panopticon.alerters;
 
+import no.panopticon.integrations.slack.PagerdutyClient;
 import no.panopticon.integrations.slack.SlackClient;
 import no.panopticon.storage.RunningUnit;
 import no.panopticon.storage.StatusSnapshot;
@@ -16,14 +17,16 @@ import static java.util.stream.Collectors.toList;
 public class StatusAlerter {
 
     private final SlackClient slackClient;
+    private PagerdutyClient pagerdutyClient;
     private ConcurrentMap<Alertable, String> alertedAbout = new ConcurrentHashMap<>();
 
-    public StatusAlerter(SlackClient slackClient) {
+    public StatusAlerter(SlackClient slackClient, PagerdutyClient pagerdutyClient) {
         this.slackClient = slackClient;
+        this.pagerdutyClient = pagerdutyClient;
     }
 
     public void handle(RunningUnit unit, StatusSnapshot snapshot) {
-        List<StatusSnapshot.Measurement> wasWarnErrorIsNotInfo = snapshot.getMeasurements().stream()
+        List<StatusSnapshot.Measurement> wasWarnErrorIsNowInfo = snapshot.getMeasurements().stream()
                 .filter(m -> m.getStatus().equals("INFO"))
                 .filter(m -> {
                     String alertable = alertedAbout.get(new Alertable(unit, m.getKey()));
@@ -39,10 +42,16 @@ public class StatusAlerter {
                 })
                 .collect(toList());
 
-        wasWarnErrorIsNotInfo.forEach((measurement) -> slackClient.alertAboutStatus(unit, measurement));
-        hasChangedAlertLevel.forEach((measurement) -> slackClient.alertAboutStatus(unit, measurement));
+        wasWarnErrorIsNowInfo.forEach((measurement) -> {
+            slackClient.alertAboutStatus(unit, measurement);
+            pagerdutyClient.alertAboutStatus(unit, measurement);
+        });
+        hasChangedAlertLevel.forEach((measurement) -> {
+            slackClient.alertAboutStatus(unit, measurement);
+            pagerdutyClient.alertAboutStatus(unit, measurement);
+        });
 
-        wasWarnErrorIsNotInfo.forEach(m -> alertedAbout.remove(new Alertable(unit, m.getKey())));
+        wasWarnErrorIsNowInfo.forEach(m -> alertedAbout.remove(new Alertable(unit, m.getKey())));
         hasChangedAlertLevel.forEach(m -> alertedAbout.put(new Alertable(unit, m.getKey()), m.getStatus()));
     }
 

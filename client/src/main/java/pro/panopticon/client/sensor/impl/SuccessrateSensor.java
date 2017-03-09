@@ -17,11 +17,11 @@ public class SuccessrateSensor implements Sensor {
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     private final int numberToKeep;
-    private final double warnLimit;
-    private final double errorLimit;
+    private final Double warnLimit;
+    private final Double errorLimit;
     private final Map<String, CircularFifoQueue<Event>> eventQueues = new HashMap<>();
 
-    public SuccessrateSensor(int numberToKeep, double warnLimit, double errorLimit) {
+    public SuccessrateSensor(int numberToKeep, Double warnLimit, Double errorLimit) {
         this.numberToKeep = numberToKeep;
         this.warnLimit = warnLimit;
         this.errorLimit = errorLimit;
@@ -44,7 +44,7 @@ public class SuccessrateSensor implements Sensor {
     }
 
     private CircularFifoQueue<Event> getQueueForKey(String key) {
-        return eventQueues.computeIfAbsent(key, k -> new CircularFifoQueue<Event>(numberToKeep));
+        return eventQueues.computeIfAbsent(key, k -> new CircularFifoQueue<>(numberToKeep));
     }
 
     @Override
@@ -72,8 +72,8 @@ public class SuccessrateSensor implements Sensor {
 
     private String getStatusFromPercentage(boolean enoughDataToAlert, double percentFailure) {
         if (!enoughDataToAlert) return "INFO";
-        if (percentFailure >= errorLimit) return "ERROR";
-        if (percentFailure >= warnLimit) return "WARN";
+        if (errorLimit != null && percentFailure >= errorLimit) return "ERROR";
+        if (warnLimit != null && percentFailure >= warnLimit) return "WARN";
         return "INFO";
     }
 

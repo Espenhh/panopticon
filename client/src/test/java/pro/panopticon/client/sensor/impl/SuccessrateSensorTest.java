@@ -68,6 +68,19 @@ public class SuccessrateSensorTest {
     }
 
     @Test
+    public void should_get_status_info_when_warn_levels_is_null() {
+        SuccessrateSensor sensor = new SuccessrateSensor(100, null, null);
+        IntStream.range(0, 100).forEach(i -> sensor.tickFailure("key1"));
+        List<Measurement> measurements = sensor.measure();
+        assertThat(measurements.size(), is(1));
+        Optional<Measurement> key1 = measurements.stream().filter(m -> m.key.equals("key1")).findAny();
+        assertThat(key1.isPresent(), is(true));
+        assertThat(key1.get().status, is("INFO"));
+        assertThat(key1.get().displayValue, is("Last 100 calls: 0 success, 100 failure (100.00% failure)"));
+        assertThat(key1.get().numericValue, is(100L));
+    }
+
+    @Test
     public void should_only_keep_last_XXX_measurements() {
         SuccessrateSensor sensor = new SuccessrateSensor(100, 0.1, 0.2);
         IntStream.range(0, 100).forEach(i -> sensor.tickFailure("key1"));

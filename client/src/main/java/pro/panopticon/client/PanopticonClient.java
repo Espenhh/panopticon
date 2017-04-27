@@ -111,4 +111,8 @@ public class PanopticonClient {
         };
         SCHEDULER.scheduleWithFixedDelay(runnable, 0, 1, TimeUnit.MINUTES);
     }
+
+    public void shutdownScheduledStatusUpdate() {
+        SCHEDULER.shutdown();
+    }
 }

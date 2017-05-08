@@ -5,3 +5,4 @@ target
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+application-local.properties

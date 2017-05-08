@@ -13,3 +13,5 @@ type Msg
     | SystemStatus (Result Http.Error Components.Model.Model)
     | ComponentsMsg Components.Messages.Msg
     | DetailMsg Detail.Messages.Msg
+    | Login
+    | LoginResult String

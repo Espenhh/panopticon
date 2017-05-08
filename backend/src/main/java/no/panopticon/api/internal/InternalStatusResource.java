@@ -1,5 +1,6 @@
 package no.panopticon.api.internal;
 
+import no.panopticon.filter.AuthenticatedWithAuth0;
 import no.panopticon.storage.StatusStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 @Component
+@AuthenticatedWithAuth0
 @Path(InternalStatusResource.INTERNAL_STATUS_BASE_PATH)
 public class InternalStatusResource {
 

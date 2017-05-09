@@ -25,11 +25,8 @@ handle403 msg =
                         _ ->
                             result
 
-                App.Messages.SystemStatus (Ok res) ->
-                    App.Messages.SystemStatus (Result.Ok res)
-
-                _ ->
-                    result
+                other ->
+                    other
         )
 
 

@@ -1,7 +1,6 @@
 (function() {
     var app;
     var url = window.location.href.includes('localhost') ? 'http://localhost:8080/api' : '/api';
-    //var url = 'http://nsb.panopticon.pro/api';
     var lock = new Auth0Lock(window.clientId, window.domain, {
         auth: {
             autoParseHash: false

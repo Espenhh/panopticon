@@ -7,6 +7,7 @@ import Detail.Update
 import Detail.Model
 import Nav.Requests exposing (getSystemStatus, getDetails)
 import Nav.Model exposing (..)
+import Auth exposing (login)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -16,7 +17,7 @@ update msg model =
             updatePage page model
 
         GetSystemStatus ->
-            ( model, getSystemStatus model.flags.url )
+            ( model, getSystemStatus model.appState.url model.appState.token )
 
         SystemStatus (Err _) ->
             ( model, Cmd.none )
@@ -34,12 +35,30 @@ update msg model =
         DetailMsg detailMsg ->
             let
                 ( detailModel, cmd ) =
-                    Detail.Update.update detailMsg model.detail
+                    Detail.Update.update model.appState.token detailMsg model.detail
 
                 mappedCmd =
                     Cmd.map DetailMsg cmd
             in
                 ( { model | detail = detailModel }, mappedCmd )
+
+        Login ->
+            ( setToken Nothing model.appState |> setAppState model, login () )
+
+        LoginResult token ->
+            ( setToken (Just token) model.appState |> setAppState model
+            , Cmd.none
+            )
+
+
+setToken : Maybe String -> AppState -> AppState
+setToken token appState =
+    { appState | token = token }
+
+
+setAppState : Model -> AppState -> Model
+setAppState model appState =
+    { model | appState = appState }
 
 
 updatePage : Page -> Model -> ( Model, Cmd Msg )
@@ -50,12 +69,12 @@ updatePage page m =
     in
         case page of
             Components as page ->
-                ( { model | page = page }, getSystemStatus model.flags.url )
+                ( { model | page = page }, getSystemStatus model.appState.url model.appState.token )
 
             (Component env system component server) as page ->
                 let
                     cmd =
-                        Cmd.map DetailMsg <| getDetails model.flags.url env system component server
+                        Cmd.map DetailMsg <| getDetails model.appState.url model.appState.token env system component server
                 in
                     ( { model | page = page }, cmd )
 

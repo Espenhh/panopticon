@@ -11,5 +11,7 @@ Needs the following things things installed to build:
 ## Develop
 
 - `npm i`
+- `cp config-example.json config.json`
+- Edit the values in `config.json`
 - `npm run watch` (answer yes to all questions)
-- open your browser at http://localhost:8000/
+- Open your browser at http://localhost:8000/

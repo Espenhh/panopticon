@@ -3,16 +3,16 @@
 <head>
 	<title>Panopticon</title>
   <meta charset="utf-8" />
+    <script src="https://cdn.auth0.com/js/lock/10.15.1/lock.min.js"></script>
 	<link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,700,900" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" type="text/css" href="app.css" />
 </head>
 <body>
-    <script type="text/javascript" src="app.js"></script>
     <script>
-        var url = window.location.href.includes("localhost") ? "http://localhost:8080/api" : "/api";
-        Elm.Main.fullscreen({
-            url: url
-        });
+      window.clientId = "{{clientId}}";
+      window.domain = "{{domain}}";
     </script>
+    <script type="text/javascript" src="app.js"></script>
+    <script type="text/javascript" src="index.js"></script>
 </body>
 </html>

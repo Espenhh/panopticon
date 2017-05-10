@@ -5,8 +5,8 @@ import Detail.Messages exposing (..)
 import Nav.Requests exposing (getDetails)
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update : Maybe String -> Msg -> Model -> ( Model, Cmd Msg )
+update token msg model =
     case msg of
         Update ->
             ( model, Cmd.none )
@@ -14,7 +14,7 @@ update msg model =
         GetDetails baseUrl ->
             let
                 request =
-                    getDetails baseUrl model.environment model.system model.component model.server
+                    getDetails baseUrl token model.environment model.system model.component model.server
             in
                 ( model, request )
 

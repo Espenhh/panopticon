@@ -11,18 +11,8 @@ done
 cd ${BASEDIR}
 cd backend
 
-envs=$(eb list | sed 's/^\* //')
-
 if [[ ${1} != panopticon-* ]]; then
-  echo "Usage: ${0} panopticon-<environment>"
-  echo
-  echo "Available environments:"
-  echo "${envs}"
-  exit 1
-elif [ $(echo "${envs}" | grep "^${1}$" -c) -eq 0 ]; then
-  echo "Environment not recognized: '${1}'. Use one of the following:"
-  echo
-  echo "${envs}"
+  echo "Usage: ${0} panopticon-<environment> [debug]"
   exit 1
 fi
 
@@ -43,8 +33,34 @@ if [ $? -ne 255 ]; then
   exit 1
 fi
 
-echo "> Starting deploy"
-eb deploy "${beanstalk_env}"
+SPRING_PROFILES_ACTIVE=${env}
+KEYNAME="panopticon-nsb"
+instance_type="t2.micro"
+platform="64bit Amazon Linux 2016.09 v2.4.4 running Java 8"
 
-echo "Deploy complete.'"
+echo "Variables:
+---------
+version: ${version}
+platform: ${platform}
+instance_type: ${instance_type}
+keyname: ${KEYNAME}
+envvars SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+"
+
+if [ "${2}" == "debug" ]; then
+  echo "Debug mode. Skipping creation."
+  exit 0
+fi
+
+echo "Starting creation of ${beanstalk_env}:
+-----------------------------------
+"
+envchain aws eb create ${beanstalk_env} \
+--keyname ${KEYNAME} \
+--vpc.elbpublic \
+--platform "${platform}" \
+--instance_type ${instance_type} \
+--cname ${beanstalk_env} \
+--envvars SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+
 exit 0

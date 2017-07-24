@@ -12,14 +12,14 @@ view : Model -> Html Msg
 view model =
     let
         metrics =
-            List.map viewMetric model.measurements
+            List.reverse <| List.sortWith (\m1 m2 -> Metric.Model.compareStatus m1.status m2.status) model.measurements
     in
         div [ class "detail" ]
             [ div [ class "detail__header" ]
                 [ h1 [ class "detail__component" ] [ text <| model.component ++ " (" ++ model.environment ++ ")" ]
                 , h2 [ class "detail__server " ] [ text model.server ]
                 ]
-            , div [ class "detail__metrics" ] metrics
+            , div [ class "detail__metrics" ] <| List.map viewMetric metrics
             ]
 
 

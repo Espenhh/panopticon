@@ -11,6 +11,8 @@ public class SlackConfiguration {
 
     public String channel;
 
+    public String channelDetailed;
+
     public String panopticonurl;
 
     public void setToken(String token) {
@@ -19,6 +21,10 @@ public class SlackConfiguration {
 
     public void setChannel(String channel) {
         this.channel = channel;
+    }
+
+    public void setChannelDetailed(String channelDetailed) {
+        this.channelDetailed = channelDetailed;
     }
 
     public void setPanopticonurl(String panopticonurl) {

@@ -94,7 +94,7 @@ public class SlackClient {
         String heading = String.format("*%d aktive varslinger akkurat nå. Se detaljert hendelseslogg i #%s*", alertLines.size(), slackConfiguration.channelDetailed);
 
         List<SlackAttachment> attachments = alertLines.stream().map(l -> {
-            SlackAttachment a = new SlackAttachment(null, null, l.message, null);
+            SlackAttachment a = new SlackAttachment(l.header, null, l.message, null);
             if (l.severity.equals("ERROR")) {
                 a.setColor(RED);
             } else if (l.severity.equals("WARN")) {
@@ -122,10 +122,12 @@ public class SlackClient {
     public static class Line {
 
         private final String severity;
+        private final String header;
         private final String message;
 
-        public Line(String severity, String message) {
+        public Line(String severity, String header, String message) {
             this.severity = severity;
+            this.header = header;
             this.message = message;
         }
 
@@ -137,12 +139,14 @@ public class SlackClient {
             Line line = (Line) o;
 
             if (severity != null ? !severity.equals(line.severity) : line.severity != null) return false;
+            if (header != null ? !header.equals(line.header) : line.header != null) return false;
             return message != null ? message.equals(line.message) : line.message == null;
         }
 
         @Override
         public int hashCode() {
             int result = severity != null ? severity.hashCode() : 0;
+            result = 31 * result + (header != null ? header.hashCode() : 0);
             result = 31 * result + (message != null ? message.hashCode() : 0);
             return result;
         }

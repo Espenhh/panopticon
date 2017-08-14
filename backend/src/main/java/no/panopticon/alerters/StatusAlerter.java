@@ -66,7 +66,11 @@ public class StatusAlerter {
         currentStatuses.entrySet().forEach(e -> {
             e.getValue().getMeasurements().forEach(m -> {
                 if (!m.getStatus().equals("INFO")) {
-                    toAlert.add(new SlackClient.Line(m.getStatus(), String.format("[%s] %s på %s: %s = %s", e.getKey().getEnvironment(), e.getKey().getComponent(), e.getKey().getServer(), m.getKey(), m.getDisplayValue())));
+                    toAlert.add(new SlackClient.Line(
+                            m.getStatus(),
+                            String.format("[%s] %s på %s", e.getKey().getEnvironment().toUpperCase(), e.getKey().getComponent(), e.getKey().getServer()),
+                            String.format("%s: %s", m.getKey(), m.getDisplayValue())
+                    ));
                 }
             });
         });

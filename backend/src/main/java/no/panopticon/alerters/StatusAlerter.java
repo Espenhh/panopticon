@@ -6,6 +6,7 @@ import no.panopticon.storage.RunningUnit;
 import no.panopticon.storage.StatusSnapshot;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,7 +26,12 @@ public class StatusAlerter {
         this.pagerdutyClient = pagerdutyClient;
     }
 
-    public void handle(RunningUnit unit, StatusSnapshot snapshot) {
+    public void handle(RunningUnit unit, StatusSnapshot snapshot, ConcurrentMap<RunningUnit, StatusSnapshot> currentStatuses) {
+        handleSingleEventAlerting(unit, snapshot);
+        handleCombinedAlerting(currentStatuses);
+    }
+
+    private void handleSingleEventAlerting(RunningUnit unit, StatusSnapshot snapshot) {
         List<StatusSnapshot.Measurement> wasWarnErrorIsNowInfo = snapshot.getMeasurements().stream()
                 .filter(m -> m.getStatus().equals("INFO"))
                 .filter(m -> {
@@ -53,6 +59,18 @@ public class StatusAlerter {
 
         wasWarnErrorIsNowInfo.forEach(m -> alertedAbout.remove(new Alertable(unit, m.getKey())));
         hasChangedAlertLevel.forEach(m -> alertedAbout.put(new Alertable(unit, m.getKey()), m.getStatus()));
+    }
+
+    private void handleCombinedAlerting(ConcurrentMap<RunningUnit, StatusSnapshot> currentStatuses) {
+        List<SlackClient.Line> toAlert = new ArrayList<>();
+        currentStatuses.entrySet().forEach(e -> {
+            e.getValue().getMeasurements().forEach(m -> {
+                if (!m.getStatus().equals("INFO")) {
+                    toAlert.add(new SlackClient.Line(m.getStatus(), String.format("[%s] %s på %s: %s = %s", e.getKey().getEnvironment(), e.getKey().getComponent(), e.getKey().getServer(), m.getKey(), m.getDisplayValue())));
+                }
+            });
+        });
+        slackClient.combinedStatusAlerting(toAlert);
     }
 
     private class Alertable {

@@ -55,7 +55,7 @@ public class StatusStorage {
         StatusSnapshot snapshot = updatedStatus.toStatusSnapshot();
         currentStatuses.put(unit, snapshot);
         missingRunningUnitsAlerter.checkin(unit);
-        statusAlerter.handle(unit, snapshot);
+        statusAlerter.handle(unit, snapshot, currentStatuses);
         LOG.info("Updated " + unit + " with " + snapshot);
     }
 

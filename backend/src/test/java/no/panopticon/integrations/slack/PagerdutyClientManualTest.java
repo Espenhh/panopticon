@@ -22,16 +22,6 @@ public class PagerdutyClientManualTest {
     }
 
     @Test
-    public void should_indicate_missing_running_unit() {
-        client.indicateMissingRunningUnit(RUNNING_UNIT);
-    }
-
-    @Test
-    public void should_indicate_returned_running_unit() {
-        client.indicateReturnedRunningUnit(RUNNING_UNIT);
-    }
-
-    @Test
     public void indicate_error() {
         client.alertAboutStatus(RUNNING_UNIT, new StatusSnapshot.Measurement("rest.calls", "ERROR", "Last 1000 calls: 500 success, 500 failure (50.00% failure)", 0));
     }

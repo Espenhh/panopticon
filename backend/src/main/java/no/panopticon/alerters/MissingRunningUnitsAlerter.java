@@ -11,10 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.*;
-
-import static java.time.temporal.ChronoUnit.MINUTES;
 
 
 @Service
@@ -25,7 +24,7 @@ public class MissingRunningUnitsAlerter {
     private PagerdutyClient pagerdutyClient;
 
     private ConcurrentMap<Component, ExpiringMap<String, LocalDateTime>> checkins = new ConcurrentHashMap<>();
-    private ConcurrentMap<Component, Integer> numberOfServers = new ConcurrentHashMap<>();
+    private ConcurrentMap<Component, ExpiringMap<LocalDateTime, Integer>> numberOfServersLast15Minutes = new ConcurrentHashMap<>();
 
     private static final ScheduledExecutorService SCHEDULER = Executors.newScheduledThreadPool(1);
 
@@ -38,16 +37,16 @@ public class MissingRunningUnitsAlerter {
 
     private void checkForMissingRunningUnits() {
         checkins.forEach((c, m) -> {
-            int numberOfServersLastTime = numberOfServers.computeIfAbsent(c, comp -> 0);
+            numberOfServersLast15Minutes.putIfAbsent(c, ExpiringMap.builder().maxSize(15).expirationPolicy(ExpirationPolicy.CREATED).build());
+            int lowestNumberOfServersLast15Minutes = numberOfServersLast15Minutes.get(c).entrySet().stream().mapToInt(Map.Entry::getValue).min().orElse(0);
             int numberOfServersNow = m.size();
-            int numberOfServersNowActiveForMoreThan10Minutes = (int) m.entrySet().stream().filter(e -> e.getValue().isBefore(LocalDateTime.now().minus(10, MINUTES))).count();
-            if (numberOfServersNow < numberOfServersLastTime) {
-                slackClient.indicateFewerRunningUnits(c, numberOfServersLastTime, numberOfServersNow);
-                pagerdutyClient.indicateFewerRunningUnits(c, numberOfServersLastTime, numberOfServersNow);
-            } else if (numberOfServersNow > numberOfServersLastTime) {
-                pagerdutyClient.indicateMoreRunningUnits(c, numberOfServersLastTime, numberOfServersNow);
+            if (numberOfServersNow < lowestNumberOfServersLast15Minutes) {
+                slackClient.indicateFewerRunningUnits(c, lowestNumberOfServersLast15Minutes, numberOfServersNow);
+                pagerdutyClient.indicateFewerRunningUnits(c, lowestNumberOfServersLast15Minutes, numberOfServersNow);
+            } else if (numberOfServersNow > lowestNumberOfServersLast15Minutes) {
+                pagerdutyClient.indicateMoreRunningUnits(c, lowestNumberOfServersLast15Minutes, numberOfServersNow);
             }
-            numberOfServers.put(c, numberOfServersNowActiveForMoreThan10Minutes);
+            numberOfServersLast15Minutes.get(c).put(LocalDateTime.now(), numberOfServersNow);
         });
     }
 

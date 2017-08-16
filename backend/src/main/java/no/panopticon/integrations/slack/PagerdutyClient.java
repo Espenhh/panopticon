@@ -3,6 +3,7 @@ package no.panopticon.integrations.slack;
 import com.squareup.pagerduty.incidents.PagerDuty;
 import com.squareup.pagerduty.incidents.Resolution;
 import com.squareup.pagerduty.incidents.Trigger;
+import no.panopticon.alerters.MissingRunningUnitsAlerter;
 import no.panopticon.config.PagerdutyConfiguration;
 import no.panopticon.storage.RunningUnit;
 import no.panopticon.storage.StatusSnapshot;
@@ -18,45 +19,11 @@ public class PagerdutyClient {
 
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
-    private PagerdutyConfiguration pagerdutyConfiguration;
     private final PagerDuty pagerduty;
 
     @Autowired
     public PagerdutyClient(PagerdutyConfiguration pagerdutyConfiguration) {
-        this.pagerdutyConfiguration = pagerdutyConfiguration;
         pagerduty = PagerDuty.create(pagerdutyConfiguration.apikey);
-    }
-
-    public void indicateMissingRunningUnit(RunningUnit runningUnit) {
-        try {
-            Trigger trigger = new Trigger
-                    .Builder(String.format("%s - the instance has been missing for 5 minutes.", createHumanReadableName(runningUnit)))
-                    .withIncidentKey(createIncidentKey(runningUnit))
-                    .addDetails("server", runningUnit.getServer())
-                    .addDetails("component", runningUnit.getComponent())
-                    .addDetails("system", runningUnit.getSystem())
-                    .addDetails("environment", runningUnit.getEnvironment())
-                    .build();
-            pagerduty.notify(trigger);
-        } catch (IOException e) {
-            LOG.warn("Error when calling pagerduty to trigger missing running unit", e);
-        }
-    }
-
-    public void indicateReturnedRunningUnit(RunningUnit runningUnit) {
-        try {
-            Resolution resolution = new Resolution
-                    .Builder(createIncidentKey(runningUnit))
-                    .withDescription(String.format("%s - the missing instance has become active again.", createHumanReadableName(runningUnit)))
-                    .addDetails("server", runningUnit.getServer())
-                    .addDetails("component", runningUnit.getComponent())
-                    .addDetails("system", runningUnit.getSystem())
-                    .addDetails("environment", runningUnit.getEnvironment())
-                    .build();
-            pagerduty.notify(resolution);
-        } catch (IOException e) {
-            LOG.warn("Error when calling pagerduty for resolution to missing running unit", e);
-        }
     }
 
     public void alertAboutStatus(RunningUnit runningUnit, StatusSnapshot.Measurement measurement) {
@@ -107,12 +74,50 @@ public class PagerdutyClient {
         }
     }
 
+    public void indicateFewerRunningUnits(MissingRunningUnitsAlerter.Component c, int serversLastTime, int serversNow) {
+        try {
+            Trigger trigger = new Trigger
+                    .Builder(String.format("%s - number of servers running the app has decreased from %s to %s.", createHumanReadableName(c), serversLastTime, serversNow))
+                    .withIncidentKey(createIncidentKey(c))
+                    .addDetails("component", c.getComponent())
+                    .addDetails("system", c.getSystem())
+                    .addDetails("environment", c.getEnvironment())
+                    .build();
+            pagerduty.notify(trigger);
+        } catch (IOException e) {
+            LOG.warn("Error when calling pagerduty to trigger missing running unit", e);
+        }
+    }
+
+    public void indicateMoreRunningUnits(MissingRunningUnitsAlerter.Component c, int serversLastTime, int serversNow) {
+        try {
+            Resolution resolution = new Resolution
+                    .Builder(createIncidentKey(c))
+                    .withDescription(String.format("%s - number of servers running the app has increased from %s to %s.", createHumanReadableName(c), serversLastTime, serversNow))
+                    .addDetails("component", c.getComponent())
+                    .addDetails("system", c.getSystem())
+                    .addDetails("environment", c.getEnvironment())
+                    .build();
+            pagerduty.notify(resolution);
+        } catch (IOException e) {
+            LOG.warn("Error when calling pagerduty for resolution to missing running unit", e);
+        }
+    }
+
     private String createHumanReadableName(RunningUnit runningUnit) {
         return String.format("[%s] %s on %s", runningUnit.getEnvironment().toUpperCase(), runningUnit.getComponent(), runningUnit.getServer());
     }
 
+    private String createHumanReadableName(MissingRunningUnitsAlerter.Component c) {
+        return String.format("[%s] %s", c.getEnvironment().toUpperCase(), c.getComponent());
+    }
+
     private String createIncidentKey(RunningUnit runningUnit) {
         return String.format("missingunit-%s-%s-%s-%s", runningUnit.getEnvironment(), runningUnit.getSystem(), runningUnit.getComponent(), runningUnit.getServer());
+    }
+
+    private String createIncidentKey(MissingRunningUnitsAlerter.Component c) {
+        return String.format("missingunit-%s-%s-%s", c.getEnvironment(), c.getSystem(), c.getComponent());
     }
 
     private String createIncidentKey(RunningUnit runningUnit, StatusSnapshot.Measurement measurement) {

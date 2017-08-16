@@ -3,6 +3,7 @@ package no.panopticon.integrations.slack;
 import com.ullink.slack.simpleslackapi.*;
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory;
 import com.ullink.slack.simpleslackapi.replies.SlackMessageReply;
+import no.panopticon.alerters.MissingRunningUnitsAlerter;
 import no.panopticon.config.SlackConfiguration;
 import no.panopticon.storage.RunningUnit;
 import no.panopticon.storage.StatusSnapshot;
@@ -117,6 +118,25 @@ public class SlackClient {
         previousCombinedStatusAlertMessageTimestamp = reply.getReply().getTimestamp();
         previousCombinedAlerts = alertLines;
 
+    }
+
+    public void indicateFewerRunningUnits(MissingRunningUnitsAlerter.Component c, int serversLastTime, int serversNow) {
+        connectIfNessesary();
+
+        SlackChannel channel = slack.findChannelByName(slackConfiguration.channel);
+
+        String name = String.format("[%s] %s", c.getEnvironment().toUpperCase(), c.getComponent());
+
+        String text = String.format("Antall servere som kjører appen har gått ned fra %d til %d", serversLastTime, serversNow);
+        SlackAttachment attachment = new SlackAttachment(name, "", text, null);
+        attachment.setColor(YELLOW);
+        attachment.setFooter("Se alle detaljer i Panopticon: " + slackConfiguration.panopticonurl);
+        attachment.addMarkdownIn("text, footer");
+
+        SlackPreparedMessage message = new SlackPreparedMessage.Builder()
+                .addAttachment(attachment)
+                .build();
+        slack.sendMessage(channel, message);
     }
 
     public static class Line {

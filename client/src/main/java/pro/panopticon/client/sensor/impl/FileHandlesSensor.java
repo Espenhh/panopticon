@@ -1,5 +1,6 @@
 package pro.panopticon.client.sensor.impl;
 
+import com.amazonaws.services.cloudwatch.model.StandardUnit;
 import pro.panopticon.client.model.Measurement;
 import pro.panopticon.client.sensor.Sensor;
 import pro.panopticon.client.util.SystemStatus;
@@ -28,7 +29,7 @@ public class FileHandlesSensor implements Sensor {
         double percent = ((double) open / (double) max) * 100;
         String displayValue = String.format("%s of %s filehandles used (%.2f%%)", open, max, percent);
 
-        measurements.add(new Measurement("filehandles", statusFromOpenFileHandles(open), displayValue, open));
+        measurements.add(new Measurement("filehandles", statusFromOpenFileHandles(open), displayValue, new Measurement.CloudwatchValue(percent, StandardUnit.Percent)));
 
         return measurements;
     }

@@ -1,5 +1,6 @@
 package pro.panopticon.client.sensor.impl;
 
+import com.amazonaws.services.cloudwatch.model.StandardUnit;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +57,6 @@ public class SuccessrateSensor implements Sensor {
                     long success = events.stream().filter(a -> a == Event.SUCCESS).count();
                     long failure = events.stream().filter(a -> a == Event.FAILURE).count();
                     double percentFailureDouble = all > 0 ? (double) failure / (double) all : 0;
-                    long percentFailureLong = (long) (percentFailureDouble * 100);
                     boolean enoughDataToAlert = all == numberToKeep;
                     String display = String.format("Last %s calls: %s success, %s failure (%.2f%% failure)%s",
                             Integer.min(all, numberToKeep),
@@ -65,7 +65,7 @@ public class SuccessrateSensor implements Sensor {
                             percentFailureDouble * 100,
                             enoughDataToAlert ? "" : " - not enough calls to report status yet"
                     );
-                    return new Measurement(e.getKey(), getStatusFromPercentage(enoughDataToAlert, percentFailureDouble), display, percentFailureLong);
+                    return new Measurement(e.getKey(), getStatusFromPercentage(enoughDataToAlert, percentFailureDouble), display, new Measurement.CloudwatchValue(percentFailureDouble, StandardUnit.Percent));
                 })
                 .collect(toList());
     }

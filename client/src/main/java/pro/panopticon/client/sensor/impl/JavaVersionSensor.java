@@ -13,7 +13,7 @@ public class JavaVersionSensor implements Sensor {
     @Override
     public List<Measurement> measure() {
         List<Measurement> measurements = new ArrayList<>();
-        measurements.add(new Measurement("java.version", "INFO", version, 0));
+        measurements.add(new Measurement("java.version", "INFO", version));
         return measurements;
     }
 }

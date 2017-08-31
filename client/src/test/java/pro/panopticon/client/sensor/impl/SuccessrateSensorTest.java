@@ -23,7 +23,6 @@ public class SuccessrateSensorTest {
         assertThat(key1.isPresent(), is(true));
         assertThat(key1.get().status, is("INFO"));
         assertThat(key1.get().displayValue, is("Last 2 calls: 1 success, 1 failure (50.00% failure) - not enough calls to report status yet"));
-        assertThat(key1.get().numericValue, is(50L));
     }
 
     @Test
@@ -36,7 +35,6 @@ public class SuccessrateSensorTest {
         assertThat(key1.isPresent(), is(true));
         assertThat(key1.get().status, is("INFO"));
         assertThat(key1.get().displayValue, is("Last 100 calls: 100 success, 0 failure (0.00% failure)"));
-        assertThat(key1.get().numericValue, is(0L));
     }
 
     @Test
@@ -50,7 +48,6 @@ public class SuccessrateSensorTest {
         assertThat(key1.isPresent(), is(true));
         assertThat(key1.get().status, is("WARN"));
         assertThat(key1.get().displayValue, is("Last 100 calls: 90 success, 10 failure (10.00% failure)"));
-        assertThat(key1.get().numericValue, is(10L));
     }
 
     @Test
@@ -64,7 +61,6 @@ public class SuccessrateSensorTest {
         assertThat(key1.isPresent(), is(true));
         assertThat(key1.get().status, is("ERROR"));
         assertThat(key1.get().displayValue, is("Last 100 calls: 80 success, 20 failure (20.00% failure)"));
-        assertThat(key1.get().numericValue, is(20L));
     }
 
     @Test
@@ -77,7 +73,6 @@ public class SuccessrateSensorTest {
         assertThat(key1.isPresent(), is(true));
         assertThat(key1.get().status, is("INFO"));
         assertThat(key1.get().displayValue, is("Last 100 calls: 0 success, 100 failure (100.00% failure)"));
-        assertThat(key1.get().numericValue, is(100L));
     }
 
     @Test
@@ -91,7 +86,6 @@ public class SuccessrateSensorTest {
         assertThat(key1.isPresent(), is(true));
         assertThat(key1.get().status, is("INFO"));
         assertThat(key1.get().displayValue, is("Last 100 calls: 100 success, 0 failure (0.00% failure)"));
-        assertThat(key1.get().numericValue, is(0L));
     }
 
     @Test
@@ -108,13 +102,11 @@ public class SuccessrateSensorTest {
         assertThat(key1.isPresent(), is(true));
         assertThat(key1.get().status, is("ERROR"));
         assertThat(key1.get().displayValue, is("Last 100 calls: 50 success, 50 failure (50.00% failure)"));
-        assertThat(key1.get().numericValue, is(50L));
 
         Optional<Measurement> key2 = measurements.stream().filter(m -> m.key.equals("key2")).findAny();
         assertThat(key2.isPresent(), is(true));
         assertThat(key2.get().status, is("INFO"));
         assertThat(key2.get().displayValue, is("Last 100 calls: 98 success, 2 failure (2.00% failure)"));
-        assertThat(key2.get().numericValue, is(2L));
     }
 
 }

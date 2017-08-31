@@ -10,5 +10,11 @@ public interface HasCloudwatchConfig extends AWSCredentials {
 
     String getRegion();
 
-    String getNamespace();
+    boolean auditeventStatisticsEnabled();
+
+    String auditeventStatisticsNamespace();
+
+    boolean sensorStatisticsEnabled();
+
+    String sensorStatisticsNamespace();
 }

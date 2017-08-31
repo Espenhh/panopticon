@@ -15,17 +15,15 @@ import static java.util.stream.Collectors.toList;
 public class CloudwatchClient {
 
     private final AmazonCloudWatch cloudFront;
-    private HasCloudwatchConfig cloudwatchConfig;
 
     public CloudwatchClient(HasCloudwatchConfig cloudwatchConfig) {
         cloudFront = AmazonCloudWatchClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(cloudwatchConfig))
                 .withRegion(cloudwatchConfig.getRegion())
                 .build();
-        this.cloudwatchConfig = cloudwatchConfig;
     }
 
-    public void sendStatistics(List<CloudwatchStatistic> statistics) {
+    public void sendStatistics(String namespace, List<CloudwatchStatistic> statistics) {
         if (statistics == null || statistics.isEmpty()) {
             return;
         }
@@ -34,7 +32,7 @@ public class CloudwatchClient {
                 .collect(toList());
 
         PutMetricDataRequest request = new PutMetricDataRequest();
-        request.setNamespace(cloudwatchConfig.getNamespace());
+        request.setNamespace(namespace);
         request.setMetricData(metricDatumList);
 
         cloudFront.putMetricData(request);
@@ -43,17 +41,23 @@ public class CloudwatchClient {
     public static class CloudwatchStatistic {
         private String key;
         private Double value;
+        private StandardUnit unit;
 
-        public CloudwatchStatistic(String key, Double value) {
+        public CloudwatchStatistic(String key, Double value, StandardUnit unit) {
             this.key = key;
             this.value = value;
+            this.unit = unit;
+        }
+
+        public CloudwatchStatistic(String key, Double value) {
+            this(key, value, StandardUnit.Count);
         }
 
         public MetricDatum toMetricsDatum() {
             MetricDatum metricDatum = new MetricDatum();
             metricDatum.setMetricName(key);
             metricDatum.setTimestamp(new Date());
-            metricDatum.setUnit(StandardUnit.Count);
+            metricDatum.setUnit(unit);
             metricDatum.setValue(value);
             return metricDatum;
         }

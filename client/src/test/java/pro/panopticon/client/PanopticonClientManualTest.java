@@ -14,19 +14,19 @@ import java.util.List;
 @Ignore("This is a manual test. Run it from the IDE to test against production :)")
 public class PanopticonClientManualTest {
 
-    private static final PanopticonClient CLIENT = new PanopticonClient("http://example.com/domainhere");
+    private static final PanopticonClient CLIENT = new PanopticonClient("http://example.com/domainhere", null, null);
 
     @Test
     public void test_add_component_status() {
 
         List<Measurement> measurements = Arrays.asList(
-                new Measurement("jetty.threads", "INFO", "100 av 768 (14%)", 100),
-                new Measurement("memory.usage", "WARN", "200MB av 560MB (40%)", 200)
+                new Measurement("jetty.threads", "INFO", "100 av 768 (14%)"),
+                new Measurement("memory.usage", "WARN", "200MB av 560MB (40%)")
         );
 
         Status status = new Status("prod", "Mobile system", "mobile-backend", "server123", measurements);
 
-        CLIENT.update(status);
+        CLIENT.sendMeasurementsToPanopticon(status);
 
     }
 
@@ -45,8 +45,8 @@ public class PanopticonClientManualTest {
     private Sensor mockSystemSensor() {
         return () -> {
 			List<Measurement> measurements = new ArrayList<>();
-			measurements.add(new Measurement("system.load", "INFO", "1.23", 1));
-			measurements.add(new Measurement("memory.usage", "WARN", "700 av 1024 MB (78%)", 700));
+			measurements.add(new Measurement("system.load", "INFO", "1.23"));
+			measurements.add(new Measurement("memory.usage", "WARN", "700 av 1024 MB (78%)"));
 			return measurements;
 		};
     }
@@ -54,7 +54,7 @@ public class PanopticonClientManualTest {
     private Sensor mockJettySensor() {
         return () -> {
             List<Measurement> measurements = new ArrayList<>();
-            measurements.add(new Measurement("jetty.threads", "INFO", "100 av 768 (14%)", 100));
+            measurements.add(new Measurement("jetty.threads", "INFO", "100 av 768 (14%)"));
             return measurements;
         };
     }

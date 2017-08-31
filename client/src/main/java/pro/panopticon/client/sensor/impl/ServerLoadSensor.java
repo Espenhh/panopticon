@@ -1,5 +1,6 @@
 package pro.panopticon.client.sensor.impl;
 
+import com.amazonaws.services.cloudwatch.model.StandardUnit;
 import pro.panopticon.client.model.Measurement;
 import pro.panopticon.client.sensor.Sensor;
 import pro.panopticon.client.util.SystemStatus;
@@ -25,7 +26,7 @@ public class ServerLoadSensor implements Sensor {
         } else {
             status = "INFO";
         }
-        measurements.add(new Measurement("load.avg", status, formatted, (long) load));
+        measurements.add(new Measurement("load.avg", status, formatted, new Measurement.CloudwatchValue(load, StandardUnit.None)));
 
         return measurements;
     }

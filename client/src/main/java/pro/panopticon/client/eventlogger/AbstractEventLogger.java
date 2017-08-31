@@ -3,6 +3,7 @@ package pro.panopticon.client.eventlogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.panopticon.client.awscloudwatch.CloudwatchClient;
+import pro.panopticon.client.awscloudwatch.HasCloudwatchConfig;
 import pro.panopticon.client.model.Measurement;
 import pro.panopticon.client.sensor.Sensor;
 
@@ -21,9 +22,11 @@ public class AbstractEventLogger implements Sensor {
 
     ConcurrentMap<String, DoubleAdder> counts = new ConcurrentHashMap<>();
 
+    private HasCloudwatchConfig hasCloudwatchConfig;
     private CloudwatchClient cloudwatchClient;
 
-    public AbstractEventLogger(CloudwatchClient cloudwatchClient) {
+    public AbstractEventLogger(HasCloudwatchConfig hasCloudwatchConfig, CloudwatchClient cloudwatchClient) {
+        this.hasCloudwatchConfig = hasCloudwatchConfig;
         this.cloudwatchClient = cloudwatchClient;
     }
 
@@ -57,14 +60,15 @@ public class AbstractEventLogger implements Sensor {
         ConcurrentMap<String, DoubleAdder> mapToProcess = counts;
         counts = new ConcurrentHashMap<>();
 
-        if (cloudwatchClient != null) {
-            cloudwatchClient.sendStatistics(mapToProcess.entrySet().stream()
+        if (cloudwatchClient != null && hasCloudwatchConfig != null && hasCloudwatchConfig.auditeventStatisticsEnabled()) {
+            List<CloudwatchClient.CloudwatchStatistic> statistics = mapToProcess.entrySet().stream()
                     .map(e -> new CloudwatchClient.CloudwatchStatistic(e.getKey(), e.getValue().doubleValue()))
-                    .collect(toList()));
+                    .collect(toList());
+            cloudwatchClient.sendStatistics(hasCloudwatchConfig.auditeventStatisticsNamespace(), statistics);
         }
 
         return mapToProcess.entrySet().stream()
-                .map(e -> new Measurement("audit." + e.getKey(), "INFO", "Last minute: " + e.getValue().doubleValue(), e.getValue().longValue()))
+                .map(e -> new Measurement("audit." + e.getKey(), "INFO", "Last minute: " + e.getValue().doubleValue()))
                 .collect(toList());
     }
 }

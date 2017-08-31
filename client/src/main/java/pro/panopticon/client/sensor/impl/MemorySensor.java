@@ -1,5 +1,6 @@
 package pro.panopticon.client.sensor.impl;
 
+import com.amazonaws.services.cloudwatch.model.StandardUnit;
 import pro.panopticon.client.model.Measurement;
 import pro.panopticon.client.sensor.Sensor;
 import pro.panopticon.client.util.SystemStatus;
@@ -33,7 +34,7 @@ public class MemorySensor implements Sensor {
 
         String displayValue = toMB(used) + " of " + toMB(max) + " MB (" + percentUsed + "%)";
 
-        measurements.add(new Measurement(key, status(percentLeft), displayValue, 0));
+        measurements.add(new Measurement(key, status(percentLeft), displayValue, new Measurement.CloudwatchValue(percentUsed, StandardUnit.Percent)));
     }
 
     private String status(long percentLeft) {

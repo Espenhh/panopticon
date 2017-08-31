@@ -9,6 +9,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pro.panopticon.client.awscloudwatch.CloudwatchClient;
+import pro.panopticon.client.awscloudwatch.HasCloudwatchConfig;
 import pro.panopticon.client.model.ComponentInfo;
 import pro.panopticon.client.model.Measurement;
 import pro.panopticon.client.model.Status;
@@ -34,26 +36,66 @@ public class PanopticonClient {
     private static final ScheduledExecutorService SCHEDULER = Executors.newScheduledThreadPool(1);
 
     private final String baseUri;
-    private CloseableHttpClient client;
+    private final HasCloudwatchConfig hasCloudwatchConfig;
+    private final CloudwatchClient cloudwatchClient;
+    private final CloseableHttpClient client;
 
-    public PanopticonClient(String baseUri) {
+    public PanopticonClient(String baseUri, HasCloudwatchConfig hasCloudwatchConfig, CloudwatchClient cloudwatchClient) {
         this.baseUri = baseUri;
+        this.hasCloudwatchConfig = hasCloudwatchConfig;
+        this.cloudwatchClient = cloudwatchClient;
         client = createHttpClient();
     }
 
-    private CloseableHttpClient createHttpClient() {
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setSocketTimeout(TIMEOUT)
-                .setConnectTimeout(TIMEOUT)
-                .setConnectionRequestTimeout(TIMEOUT)
-                .build();
-
-        return HttpClientBuilder.create()
-                .setDefaultRequestConfig(requestConfig)
-                .build();
+    public void startScheduledStatusUpdate(ComponentInfo componentInfo, List<Sensor> sensors) {
+        SCHEDULER.scheduleWithFixedDelay(() -> performSensorCollection(componentInfo, sensors), 0, 1, TimeUnit.MINUTES);
     }
 
-    public boolean update(Status status) {
+    public void shutdownScheduledStatusUpdate() {
+        SCHEDULER.shutdown();
+    }
+
+    private void performSensorCollection(ComponentInfo componentInfo, List<Sensor> sensors) {
+        try {
+            long before = System.currentTimeMillis();
+            List<Measurement> measurements = collectMeasurementsFromSensors(sensors);
+            long afterMeasurements = System.currentTimeMillis();
+
+            boolean success = sendMeasurementsToPanopticon(new Status(componentInfo, measurements));
+            long afterPanopticonPost = System.currentTimeMillis();
+
+            sendSelectMeasurementsToCloudwatch(measurements);
+            long afterCloudwatchPost = System.currentTimeMillis();
+
+            long measurementTime = afterMeasurements - before;
+            long panopticonPostTime = afterPanopticonPost - afterMeasurements;
+            long cloudwatchPostTime = afterCloudwatchPost - afterPanopticonPost;
+
+            if (success) {
+                LOG.info(String.format("Sent status update with %d measurements. Fetch measurements took %dms. Posting status to panopticon took %dms. Posting to cloudwatch took %dms", measurements.size(), measurementTime, panopticonPostTime, cloudwatchPostTime));
+            } else {
+                LOG.warn("Could not update status");
+            }
+        } catch (Exception e) {
+            LOG.warn("Got error when measuring sensors to send to panopticon", e);
+        }
+    }
+
+    private List<Measurement> collectMeasurementsFromSensors(List<Sensor> sensors) {
+        return sensors.parallelStream()
+                .map((sensor) -> {
+                    try {
+                        return sensor.measure();
+                    } catch (Exception e) {
+                        LOG.warn("Got error running sensor: " + sensor.getClass().getName(), e);
+                        return new ArrayList<Measurement>();
+                    }
+                })
+                .flatMap(List::stream)
+                .collect(toList());
+    }
+
+    boolean sendMeasurementsToPanopticon(Status status) {
         try {
             String json = OBJECT_MAPPER.writeValueAsString(status);
             String uri = baseUri + "/external/status";
@@ -78,41 +120,25 @@ public class PanopticonClient {
         }
     }
 
-    public void startScheduledStatusUpdate(ComponentInfo componentInfo, List<Sensor> sensors) {
-        Runnable runnable = () -> {
-            try {
-                long before = System.currentTimeMillis();
-                List<Measurement> measurements = sensors.parallelStream()
-                        .map((sensor) -> {
-                            try {
-                                return sensor.measure();
-                            } catch (Exception e) {
-                                LOG.warn("Got error running sensor: " + sensor.getClass().getName(), e);
-                                return new ArrayList<Measurement>();
-                            }
-                        })
-                        .flatMap(List::stream)
-                        .collect(toList());
-                long afterMeasurements = System.currentTimeMillis();
-                boolean success = update(new Status(componentInfo, measurements));
-                long afterStatusPost = System.currentTimeMillis();
-
-                long measurementTime = afterMeasurements - before;
-                long statuspostTime = afterStatusPost - afterMeasurements;
-
-                if (success) {
-                    LOG.info("Sent status update with " + measurements.size() + " measurements. Fetch measurements took " + measurementTime + "ms. Posting status took " + statuspostTime + "ms.");
-                } else {
-                    LOG.warn("Could not update status");
-                }
-            } catch (Exception e) {
-                LOG.warn("Got error when measuring sensors to send to panopticon", e);
-            }
-        };
-        SCHEDULER.scheduleWithFixedDelay(runnable, 0, 1, TimeUnit.MINUTES);
+    private void sendSelectMeasurementsToCloudwatch(List<Measurement> measurements) {
+        List<CloudwatchClient.CloudwatchStatistic> statistics = measurements.stream()
+                .filter(m -> m.cloudwatchValue != null)
+                .map(m -> new CloudwatchClient.CloudwatchStatistic(m.key, m.cloudwatchValue.value, m.cloudwatchValue.unit))
+                .collect(toList());
+        if (cloudwatchClient != null && hasCloudwatchConfig != null && hasCloudwatchConfig.sensorStatisticsEnabled()) {
+            cloudwatchClient.sendStatistics(hasCloudwatchConfig.sensorStatisticsNamespace(), statistics);
+        }
     }
 
-    public void shutdownScheduledStatusUpdate() {
-        SCHEDULER.shutdown();
+    private CloseableHttpClient createHttpClient() {
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setSocketTimeout(TIMEOUT)
+                .setConnectTimeout(TIMEOUT)
+                .setConnectionRequestTimeout(TIMEOUT)
+                .build();
+
+        return HttpClientBuilder.create()
+                .setDefaultRequestConfig(requestConfig)
+                .build();
     }
 }

@@ -15,7 +15,7 @@ public class UptimeSensor implements Sensor {
     public List<Measurement> measure() {
         List<Measurement> measurements = new ArrayList<>();
 
-        measurements.add(new Measurement("uptime.since", "INFO", STARTED.toString(), 0));
+        measurements.add(new Measurement("uptime.since", "INFO", STARTED.toString()));
 
         return measurements;
     }

@@ -1,26 +1,43 @@
 package pro.panopticon.client.model;
 
+import com.amazonaws.services.cloudwatch.model.StandardUnit;
+
 public class Measurement {
     public String key;
     public String status;
     public String displayValue;
-    public long numericValue;
+    public CloudwatchValue cloudwatchValue;
 
-    public Measurement(String key, String status, String displayValue, long numericValue) {
+    public Measurement(String key, String status, String displayValue, CloudwatchValue cloudwatchValue) {
         this.key = key;
         this.status = status;
         this.displayValue = displayValue;
-        this.numericValue = numericValue;
+        this.cloudwatchValue = cloudwatchValue;
+    }
+
+    public Measurement(String key, String status, String displayValue) {
+        this(key, status, displayValue, null);
     }
 
     @Override
     public String toString() {
-        return "UpdatedMeasurement{" +
+        return "Measurement{" +
                 "key='" + key + '\'' +
                 ", status='" + status + '\'' +
                 ", displayValue='" + displayValue + '\'' +
-                ", numericValue=" + numericValue +
+                ", cloudwatchValue=" + cloudwatchValue +
                 '}';
+    }
+
+    public static class CloudwatchValue {
+        public final double value;
+        public final StandardUnit unit;
+
+        public CloudwatchValue(double value, StandardUnit unit) {
+            this.value = value;
+            this.unit = unit;
+        }
+
     }
 }
 

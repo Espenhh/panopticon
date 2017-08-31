@@ -12,7 +12,7 @@ public class ReportTimeSensor implements Sensor {
     @Override
     public List<Measurement> measure() {
         return singletonList(
-                new Measurement("report.generated", "INFO", LocalDateTime.now().toString(), 0)
+                new Measurement("report.generated", "INFO", LocalDateTime.now().toString())
         );
     }
 }

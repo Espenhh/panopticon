@@ -4,7 +4,7 @@
 
     <groupId>pro.panopticon</groupId>
     <artifactId>panopticon-client</artifactId>
-    <version>0.1.2-SNAPSHOT</version>
+    <version>0.1.2</version>
     <packaging>jar</packaging>
 
     <name>panopticon-client</name>
@@ -198,7 +198,7 @@
         <connection>scm:git:git@github.com:Espenhh/panopticon.git</connection>
         <developerConnection>scm:git:git@github.com:Espenhh/panopticon.git</developerConnection>
         <url>http://github.com/Espenhh/panopticon/tree/master</url>
-      <tag>HEAD</tag>
+      <tag>client-0.1.2</tag>
   </scm>
 
 </project>

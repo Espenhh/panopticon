@@ -65,7 +65,7 @@ public class SuccessrateSensor implements Sensor {
                             percentFailureDouble * 100,
                             enoughDataToAlert ? "" : " - not enough calls to report status yet"
                     );
-                    return new Measurement(e.getKey(), getStatusFromPercentage(enoughDataToAlert, percentFailureDouble), display, new Measurement.CloudwatchValue(percentFailureDouble, StandardUnit.Percent));
+                    return new Measurement(e.getKey(), getStatusFromPercentage(enoughDataToAlert, percentFailureDouble), display, new Measurement.CloudwatchValue(percentFailureDouble * 100, StandardUnit.Percent));
                 })
                 .collect(toList());
     }

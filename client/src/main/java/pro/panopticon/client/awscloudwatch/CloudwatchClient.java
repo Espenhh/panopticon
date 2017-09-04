@@ -6,6 +6,7 @@ import com.amazonaws.services.cloudwatch.AmazonCloudWatchClientBuilder;
 import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 import com.amazonaws.services.cloudwatch.model.StandardUnit;
+import com.google.common.collect.Lists;
 
 import java.util.Date;
 import java.util.List;
@@ -14,10 +15,10 @@ import static java.util.stream.Collectors.toList;
 
 public class CloudwatchClient {
 
-    private final AmazonCloudWatch cloudFront;
+    private final AmazonCloudWatch amazonCloudWatch;
 
     public CloudwatchClient(HasCloudwatchConfig cloudwatchConfig) {
-        cloudFront = AmazonCloudWatchClientBuilder.standard()
+        amazonCloudWatch = AmazonCloudWatchClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(cloudwatchConfig))
                 .withRegion(cloudwatchConfig.getRegion())
                 .build();
@@ -27,6 +28,10 @@ public class CloudwatchClient {
         if (statistics == null || statistics.isEmpty()) {
             return;
         }
+        Lists.partition(statistics, 15).parallelStream().forEach(l -> postToCloudwatch(namespace, l));
+    }
+
+    private void postToCloudwatch(String namespace, List<CloudwatchStatistic> statistics) {
         List<MetricDatum> metricDatumList = statistics.stream()
                 .map(CloudwatchStatistic::toMetricsDatum)
                 .collect(toList());
@@ -35,7 +40,7 @@ public class CloudwatchClient {
         request.setNamespace(namespace);
         request.setMetricData(metricDatumList);
 
-        cloudFront.putMetricData(request);
+        amazonCloudWatch.putMetricData(request);
     }
 
     public static class CloudwatchStatistic {

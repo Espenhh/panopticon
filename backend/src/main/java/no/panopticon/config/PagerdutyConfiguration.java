@@ -8,8 +8,13 @@ import org.springframework.stereotype.Component;
 public class PagerdutyConfiguration {
 
     public String apikey;
+    public String environmentAlertWhitelist;
 
     public void setApikey(String apikey) {
         this.apikey = apikey;
+    }
+
+    public void setEnvironmentAlertWhitelist(String environmentAlertWhitelist) {
+        this.environmentAlertWhitelist = environmentAlertWhitelist;
     }
 }

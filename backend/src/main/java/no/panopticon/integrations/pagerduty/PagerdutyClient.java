@@ -1,4 +1,4 @@
-package no.panopticon.integrations.slack;
+package no.panopticon.integrations.pagerduty;
 
 import com.squareup.pagerduty.incidents.PagerDuty;
 import com.squareup.pagerduty.incidents.Resolution;
@@ -13,20 +13,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.stream.Stream;
 
 @Service
 public class PagerdutyClient {
 
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
+    private final PagerdutyConfiguration pagerdutyConfiguration;
     private final PagerDuty pagerduty;
 
     @Autowired
     public PagerdutyClient(PagerdutyConfiguration pagerdutyConfiguration) {
+        this.pagerdutyConfiguration = pagerdutyConfiguration;
         pagerduty = PagerDuty.create(pagerdutyConfiguration.apikey);
     }
 
     public void alertAboutStatus(RunningUnit runningUnit, StatusSnapshot.Measurement measurement) {
+        if (!shouldAlert(runningUnit.getEnvironment())) {
+            return;
+        }
         if (measurement.getStatus().equals("ERROR")) {
             alertAboutStatusTrigger(runningUnit, measurement);
         } else {
@@ -75,6 +81,9 @@ public class PagerdutyClient {
     }
 
     public void indicateFewerRunningUnits(MissingRunningUnitsAlerter.Component c, int serversLastTime, int serversNow) {
+        if (!shouldAlert(c.getEnvironment())) {
+            return;
+        }
         try {
             Trigger trigger = new Trigger
                     .Builder(String.format("%s - number of servers running the app has decreased from %s to %s.", createHumanReadableName(c), serversLastTime, serversNow))
@@ -90,6 +99,9 @@ public class PagerdutyClient {
     }
 
     public void indicateMoreRunningUnits(MissingRunningUnitsAlerter.Component c, int serversLastTime, int serversNow) {
+        if (!shouldAlert(c.getEnvironment())) {
+            return;
+        }
         try {
             Resolution resolution = new Resolution
                     .Builder(createIncidentKey(c))
@@ -122,5 +134,13 @@ public class PagerdutyClient {
 
     private String createIncidentKey(RunningUnit runningUnit, StatusSnapshot.Measurement measurement) {
         return createIncidentKey(runningUnit) + "-" + measurement.getKey();
+    }
+
+    boolean shouldAlert(String environment) {
+        if (pagerdutyConfiguration.environmentAlertWhitelist == null || environment == null) {
+            return false;
+        } else {
+            return Stream.of(pagerdutyConfiguration.environmentAlertWhitelist.split(",")).anyMatch(environment::equalsIgnoreCase);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package no.panopticon.integrations.slack;
+package no.panopticon.integrations.pagerduty;
 
 import no.panopticon.config.PagerdutyConfiguration;
 import no.panopticon.integrations.pagerduty.PagerdutyClient;

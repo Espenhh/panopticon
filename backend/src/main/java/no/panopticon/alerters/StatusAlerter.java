@@ -1,6 +1,6 @@
 package no.panopticon.alerters;
 
-import no.panopticon.integrations.slack.PagerdutyClient;
+import no.panopticon.integrations.pagerduty.PagerdutyClient;
 import no.panopticon.integrations.slack.SlackClient;
 import no.panopticon.storage.RunningUnit;
 import no.panopticon.storage.StatusSnapshot;

@@ -1,6 +1,7 @@
 package no.panopticon.integrations.slack;
 
 import no.panopticon.config.PagerdutyConfiguration;
+import no.panopticon.integrations.pagerduty.PagerdutyClient;
 import no.panopticon.storage.RunningUnit;
 import no.panopticon.storage.StatusSnapshot;
 import org.junit.Before;

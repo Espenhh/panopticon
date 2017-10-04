@@ -2,7 +2,7 @@ package no.panopticon.alerters;
 
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
-import no.panopticon.integrations.slack.PagerdutyClient;
+import no.panopticon.integrations.pagerduty.PagerdutyClient;
 import no.panopticon.integrations.slack.SlackClient;
 import no.panopticon.storage.RunningUnit;
 import org.slf4j.Logger;

@@ -3,10 +3,9 @@ package no.panopticon.api.internal;
 import no.panopticon.storage.RunningUnit;
 import no.panopticon.storage.StatusSnapshot;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static java.util.Comparator.comparing;
 
 public class UnitDetails {
     public final String environment;
@@ -31,9 +30,22 @@ public class UnitDetails {
                 unit.getServer(),
                 statusSnapshot.getMeasurements().stream()
                         .map(s -> new Measurement(s.getKey(), s.getStatus(), s.getDisplayValue(), s.getNumericValue()))
-                        .sorted(comparing(m -> m.key))
+                        .sorted(Comparator.<Measurement, Integer>comparing(m -> toSortValue(m.status)).thenComparing(m -> m.key))
                         .collect(Collectors.toList())
         );
+    }
+
+    private static Integer toSortValue(String status) {
+        switch (status) {
+            case "ERROR":
+                return 1;
+            case "WARN":
+                return 2;
+            case "INFO":
+                return 3;
+            default:
+                return 4;
+        }
     }
 
     public static class Measurement {

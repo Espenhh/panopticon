@@ -36,7 +36,7 @@ fi
 SPRING_PROFILES_ACTIVE=${env}
 KEYNAME="panopticon-nsb"
 instance_type="t2.micro"
-platform="64bit Amazon Linux 2016.09 v2.4.4 running Java 8"
+platform="java-8"
 
 echo "Variables:
 ---------

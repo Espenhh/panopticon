@@ -65,6 +65,10 @@ public class SlackClient {
         slackMessage(slackConfiguration.channelDetailed, unit, color, message);
     }
 
+    public void awsSnsNotificationToSlack(String type, String subject, String message, String topic, String color) {
+        slackMessage(slackConfiguration.channelDetailed, type, subject, message, topic, color);
+    }
+
     private void slackMessage(String channelName, RunningUnit runningUnit, String color, String text) {
         connectIfNessesary();
 
@@ -81,6 +85,25 @@ public class SlackClient {
                 .addAttachment(attachment)
                 .build();
         slack.sendMessage(channel, message);
+    }
+
+    private void slackMessage(String channelName, String type, String subject, String message, String topic, String color) {
+        connectIfNessesary();
+
+        SlackChannel channel = slack.findChannelByName(channelName);
+
+
+        String name = String.format("[%s] %s: %s", topic, type, subject);
+
+        SlackAttachment attachment = new SlackAttachment(name, "", message, null);
+        attachment.setColor(color);
+        attachment.setFooter("Se alle detaljer i AWS CloudWatch: https://eu-central-1.console.aws.amazon.com/cloudwatch/home?region=eu-central-1");
+        attachment.addMarkdownIn("text, footer");
+
+        SlackPreparedMessage msg = new SlackPreparedMessage.Builder()
+                .addAttachment(attachment)
+                .build();
+        slack.sendMessage(channel, msg);
     }
 
     public synchronized void combinedStatusAlerting(List<Line> alertLines) {

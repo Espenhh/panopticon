@@ -2,7 +2,10 @@ package no.panopticon.api.external;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import no.panopticon.api.external.sns.*;
 import no.panopticon.integrations.slack.SlackClient;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +28,9 @@ import static javax.ws.rs.core.Response.Status.*;
 @Path("/api/external/sns")
 public class SnsResource {
 
+    public static final String NOTIFICATION = "Notification";
+    public static final String SUBSCRIPTION_CONFIRMATION = "SubscriptionConfirmation";
+    public static final String UNSUBSCRIBE_CONFIRMATION = "UnsubscribeConfirmation";
     private final SlackClient slackClient;
 
     @Autowired
@@ -47,15 +53,20 @@ public class SnsResource {
             return Response.status(NO_CONTENT).build();
         }
 
-        if (snsMessage.Type.equals("Notification")) {
-            String logMsgAndSubject = ">>Notification received from topic " + snsMessage.TopicArn;
-            if (snsMessage.Subject != null) {
-                logMsgAndSubject += " Subject: " + snsMessage.Subject;
+        String color = SlackClient.GREEN;
+        String topic = snsMessage.TopicArn.substring(snsMessage.TopicArn.lastIndexOf(':') + 1).trim();
+
+        if (snsMessage.Type.equals(NOTIFICATION)) {
+            logNotification(snsMessage);
+            if (snsMessage.Message.contains("AlarmName") && snsMessage.Message.contains("AlarmDescription")) {
+                Alarm alarm = gson.fromJson(snsMessage.Message, Alarm.class);
+                if ("ALARM".equals(alarm.NewStateValue)) {
+                    color = SlackClient.RED;
+                }
+
             }
-            logMsgAndSubject += " Message: " + snsMessage.Message;
-            LOG.info(logMsgAndSubject);
-            slackClient.awsSnsNotificationToSlack(snsMessage);
-        } else if (snsMessage.Type.equals("SubscriptionConfirmation")) {
+            slackClient.awsSnsNotificationToSlack(snsMessage.Type, snsMessage.Subject, snsMessage.Message, topic, color);
+        } else if (snsMessage.Type.equals(SUBSCRIPTION_CONFIRMATION)) {
             try {
                 //Confirm the subscription by going to the subscribeURL location
                 //and capture the return value (XML message body as a string)
@@ -64,20 +75,36 @@ public class SnsResource {
                 while (sc.hasNextLine()) {
                     sb.append(sc.nextLine());
                 }
-                LOG.info(">>Subscription confirmation (" + snsMessage.SubscribeURL + ") Return value: " + sb.toString());
-                slackClient.awsSnsNotificationToSlack(snsMessage);
+                LOG.info(">>{} ({}) Return value: {}", SUBSCRIPTION_CONFIRMATION, snsMessage.SubscribeURL, sb.toString());
+                if (snsMessage.Subject == null) {
+                    snsMessage.Subject = topic;
+                }
+                slackClient.awsSnsNotificationToSlack(snsMessage.Type, snsMessage.Subject, snsMessage.Message + "\nReturn value: " + sb.toString(), topic, SlackClient.GREEN);
             } catch (IOException e) {
+                slackClient.awsSnsNotificationToSlack(snsMessage.Type, snsMessage.Subject, snsMessage.Message, topic, SlackClient.RED);
                 LOG.error(">>Unable to confirm the subscription", e);
                 return Response.status(BAD_GATEWAY).build();
             }
-        } else if (snsMessage.Type.equals("UnsubscribeConfirmation")) {
-            LOG.info(">>Unsubscribe confirmation: " + snsMessage.Message);
+        } else if (snsMessage.Type.equals(UNSUBSCRIBE_CONFIRMATION)) {
+            LOG.info(">>{}: {}", UNSUBSCRIBE_CONFIRMATION, snsMessage.Message);
+            slackClient.awsSnsNotificationToSlack(snsMessage.Type, snsMessage.Subject, snsMessage.Message, topic, SlackClient.GREEN);
         } else {
             LOG.info(">>Unknown message type.");
+            slackClient.awsSnsNotificationToSlack(snsMessage.Type, snsMessage.Subject, "Unknown message type.", topic, SlackClient.YELLOW);
         }
-        LOG.info(">>Done processing message: " + snsMessage.MessageId);
+        LOG.info(">>Done processing message: {}", snsMessage.MessageId);
 
         return Response.status(CREATED).build();
     }
+
+    private void logNotification(SnsMessage snsMessage) {
+        String logMsgAndSubject = ">>Notification received from topic " + snsMessage.TopicArn;
+        if (snsMessage.Subject != null) {
+            logMsgAndSubject += " Subject: " + snsMessage.Subject;
+        }
+        logMsgAndSubject += " Message: " + snsMessage.Message;
+        LOG.info(logMsgAndSubject);
+    }
+
 
 }

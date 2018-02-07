@@ -92,7 +92,6 @@ public class SlackClient {
 
         SlackChannel channel = slack.findChannelByName(channelName);
 
-
         String name = String.format("[%s] %s: %s", topic, type, subject);
 
         SlackAttachment attachment = new SlackAttachment(name, "", message, null);

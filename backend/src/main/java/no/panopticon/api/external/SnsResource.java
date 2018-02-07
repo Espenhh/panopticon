@@ -53,19 +53,20 @@ public class SnsResource {
             return Response.status(NO_CONTENT).build();
         }
 
-        String color = SlackClient.GREEN;
         String topic = snsMessage.TopicArn.substring(snsMessage.TopicArn.lastIndexOf(':') + 1).trim();
 
         if (snsMessage.Type.equals(NOTIFICATION)) {
             logNotification(snsMessage);
-            if (snsMessage.Message.contains("AlarmName") && snsMessage.Message.contains("AlarmDescription")) {
+            String color = SlackClient.GREEN;
+            if (snsMessage.Message.contains("AlarmName")) {
                 Alarm alarm = gson.fromJson(snsMessage.Message, Alarm.class);
                 if ("ALARM".equals(alarm.NewStateValue)) {
                     color = SlackClient.RED;
                 }
-
+                slackClient.awsSnsNotificationToSlack(alarm.NewStateValue, alarm.AlarmDescription, alarm.NewStateReason, topic, color);
+            } else {
+                slackClient.awsSnsNotificationToSlack(snsMessage.Type, snsMessage.Subject, snsMessage.Message, topic, color);
             }
-            slackClient.awsSnsNotificationToSlack(snsMessage.Type, snsMessage.Subject, snsMessage.Message, topic, color);
         } else if (snsMessage.Type.equals(SUBSCRIPTION_CONFIRMATION)) {
             try {
                 //Confirm the subscription by going to the subscribeURL location

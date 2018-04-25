@@ -7,6 +7,8 @@ import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 import com.amazonaws.services.cloudwatch.model.StandardUnit;
 import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.List;
@@ -14,6 +16,8 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 public class CloudwatchClient {
+
+    private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     private final AmazonCloudWatch amazonCloudWatch;
 
@@ -28,7 +32,17 @@ public class CloudwatchClient {
         if (statistics == null || statistics.isEmpty()) {
             return;
         }
-        Lists.partition(statistics, 15).parallelStream().forEach(l -> postToCloudwatch(namespace, l));
+
+        long before = System.currentTimeMillis();
+
+        List<List<CloudwatchStatistic>> partitions = Lists.partition(statistics, 15);
+
+        partitions.parallelStream()
+                .forEach(l -> postToCloudwatch(namespace, l));
+
+        long duration = System.currentTimeMillis() - before;
+
+        LOG.info(String.format("Sent %d partitions to CloudWatch for namespace %s in %dms", partitions.size(), namespace, duration));
     }
 
     private void postToCloudwatch(String namespace, List<CloudwatchStatistic> statistics) {

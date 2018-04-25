@@ -7,18 +7,15 @@ import pro.panopticon.client.awscloudwatch.HasCloudwatchConfig;
 import pro.panopticon.client.model.Measurement;
 import pro.panopticon.client.sensor.Sensor;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.*;
 
 public class AbstractResponseTimeLogger implements Sensor {
 
     private final String namespace;
 
-    private ConcurrentMap<String, List<CloudwatchStatistic>> counts = new ConcurrentHashMap<>();
+
+    // Using Vector since it's syncronized, e.g thread safe
+    private Vector<CloudwatchStatistic> counts = new Vector<>();
 
     private CloudwatchClient cloudwatchClient;
 
@@ -28,15 +25,15 @@ public class AbstractResponseTimeLogger implements Sensor {
     }
 
     public void addResponseTimeMeasurement(String name, long timeInMilliseconds) {
-        counts.computeIfAbsent(name, n -> new ArrayList<>())
-                .add(new CloudwatchStatistic(name, (double) timeInMilliseconds, StandardUnit.Milliseconds, new Date()));
+        counts.add(new CloudwatchStatistic(name, (double) timeInMilliseconds, StandardUnit.Milliseconds, new Date()));
     }
 
     @Override
     public List<Measurement> measure() {
-        ConcurrentMap<String, List<CloudwatchStatistic>> toSubmit = counts;
-        counts = new ConcurrentHashMap<>();
-        toSubmit.forEach((key, measurements) -> cloudwatchClient.sendStatistics(namespace, measurements));
+        List<CloudwatchStatistic> toSubmit = this.counts;
+        counts = new Vector<>();
+
+        cloudwatchClient.sendStatistics(namespace, toSubmit);
 
         // This sensor returns no measurements for now – it's just implemented as a sensor for similarity to the other concepts
         return Collections.emptyList();

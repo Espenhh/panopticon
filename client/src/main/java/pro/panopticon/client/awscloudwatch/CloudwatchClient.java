@@ -47,21 +47,27 @@ public class CloudwatchClient {
         private String key;
         private Double value;
         private StandardUnit unit;
+        private Date date;
 
-        public CloudwatchStatistic(String key, Double value, StandardUnit unit) {
+        public CloudwatchStatistic(String key, Double value, StandardUnit unit, java.util.Date date) {
             this.key = key;
             this.value = value;
             this.unit = unit;
+            this.date = date;
+        }
+
+        public CloudwatchStatistic(String key, Double value, StandardUnit unit) {
+            this(key, value, unit, new Date());
         }
 
         public CloudwatchStatistic(String key, Double value) {
-            this(key, value, StandardUnit.Count);
+            this(key, value, StandardUnit.Count, new Date());
         }
 
         public MetricDatum toMetricsDatum() {
             MetricDatum metricDatum = new MetricDatum();
             metricDatum.setMetricName(key);
-            metricDatum.setTimestamp(new Date());
+            metricDatum.setTimestamp(date);
             metricDatum.setUnit(unit);
             metricDatum.setValue(value);
             return metricDatum;

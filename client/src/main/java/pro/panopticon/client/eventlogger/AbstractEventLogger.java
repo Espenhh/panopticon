@@ -19,6 +19,7 @@ import static java.util.stream.Collectors.toList;
 public class AbstractEventLogger implements Sensor {
 
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
+    private final String namespace;
 
     ConcurrentMap<String, DoubleAdder> counts = new ConcurrentHashMap<>();
 
@@ -28,6 +29,7 @@ public class AbstractEventLogger implements Sensor {
     public AbstractEventLogger(HasCloudwatchConfig hasCloudwatchConfig, CloudwatchClient cloudwatchClient) {
         this.hasCloudwatchConfig = hasCloudwatchConfig;
         this.cloudwatchClient = cloudwatchClient;
+        this.namespace = String.format("audit-%s-%s", hasCloudwatchConfig.getAppName(), hasCloudwatchConfig.getEnvironment());
     }
 
     public void tickAndLog(HasEventInfo event, String... logappends) {
@@ -64,7 +66,7 @@ public class AbstractEventLogger implements Sensor {
             List<CloudwatchClient.CloudwatchStatistic> statistics = mapToProcess.entrySet().stream()
                     .map(e -> new CloudwatchClient.CloudwatchStatistic(e.getKey(), e.getValue().doubleValue()))
                     .collect(toList());
-            cloudwatchClient.sendStatistics(hasCloudwatchConfig.auditeventStatisticsNamespace(), statistics);
+            cloudwatchClient.sendStatistics(namespace, statistics);
         }
 
         return mapToProcess.entrySet().stream()

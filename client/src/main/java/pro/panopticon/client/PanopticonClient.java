@@ -39,12 +39,14 @@ public class PanopticonClient {
     private final HasCloudwatchConfig hasCloudwatchConfig;
     private final CloudwatchClient cloudwatchClient;
     private final CloseableHttpClient client;
+    private final String namespace;
 
     public PanopticonClient(String baseUri, HasCloudwatchConfig hasCloudwatchConfig, CloudwatchClient cloudwatchClient) {
         this.baseUri = baseUri;
         this.hasCloudwatchConfig = hasCloudwatchConfig;
         this.cloudwatchClient = cloudwatchClient;
         client = createHttpClient();
+        this.namespace = String.format("sensor-%s-%s", hasCloudwatchConfig.getAppName(), hasCloudwatchConfig.getEnvironment());
     }
 
     public void startScheduledStatusUpdate(ComponentInfo componentInfo, List<Sensor> sensors) {
@@ -126,7 +128,7 @@ public class PanopticonClient {
                 .map(m -> new CloudwatchClient.CloudwatchStatistic(m.key, m.cloudwatchValue.value, m.cloudwatchValue.unit))
                 .collect(toList());
         if (cloudwatchClient != null && hasCloudwatchConfig != null && hasCloudwatchConfig.sensorStatisticsEnabled()) {
-            cloudwatchClient.sendStatistics(hasCloudwatchConfig.sensorStatisticsNamespace(), statistics);
+            cloudwatchClient.sendStatistics(namespace, statistics);
         }
     }
 

@@ -37,7 +37,8 @@ public class CloudwatchClient {
 
     private boolean credentialsProvided(HasCloudwatchConfig cloudwatchConfig) {
         boolean hasAccessKey = Strings.isNullOrEmpty(cloudwatchConfig.getAWSAccessKeyId());
-        if (hasAccessKey != Strings.isNullOrEmpty(cloudwatchConfig.getAWSSecretKey())) {
+        boolean hasSecretKey = Strings.isNullOrEmpty(cloudwatchConfig.getAWSSecretKey());
+        if (hasAccessKey != hasSecretKey) {
             throw new IllegalArgumentException("Either Access Key ID or Secret Key is missing. Please provide both, " +
                     "or neither if you want to defer to DefaultAWSCredentialsProviderChain");
         }

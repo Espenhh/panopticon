@@ -1,11 +1,13 @@
 package pro.panopticon.client.awscloudwatch;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClientBuilder;
 import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 import com.amazonaws.services.cloudwatch.model.StandardUnit;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +24,24 @@ public class CloudwatchClient {
     private final AmazonCloudWatch amazonCloudWatch;
 
     public CloudwatchClient(HasCloudwatchConfig cloudwatchConfig) {
-        amazonCloudWatch = AmazonCloudWatchClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(cloudwatchConfig))
-                .withRegion(cloudwatchConfig.getRegion())
-                .build();
+        AmazonCloudWatchClientBuilder clientBuilder = AmazonCloudWatchClientBuilder.standard();
+        if (!Strings.isNullOrEmpty(cloudwatchConfig.getRegion())) {
+            clientBuilder.withRegion(Regions.fromName(cloudwatchConfig.getRegion()));
+        }
+        if (credentialsProvided(cloudwatchConfig)) {
+            clientBuilder.withCredentials(new AWSStaticCredentialsProvider(cloudwatchConfig));
+        }
+
+        amazonCloudWatch = clientBuilder.build();
+    }
+
+    private boolean credentialsProvided(HasCloudwatchConfig cloudwatchConfig) {
+        boolean hasAccessKey = Strings.isNullOrEmpty(cloudwatchConfig.getAWSAccessKeyId());
+        if (hasAccessKey != Strings.isNullOrEmpty(cloudwatchConfig.getAWSSecretKey())) {
+            throw new IllegalArgumentException("Either Access Key ID or Secret Key is missing. Please provide both, " +
+                    "or neither if you want to defer to DefaultAWSCredentialsProviderChain");
+        }
+        return hasAccessKey;
     }
 
     public void sendStatistics(String namespace, List<CloudwatchStatistic> statistics) {

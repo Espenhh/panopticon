@@ -36,13 +36,13 @@ public class CloudwatchClient {
     }
 
     private boolean credentialsProvided(HasCloudwatchConfig cloudwatchConfig) {
-        boolean hasAccessKey = Strings.isNullOrEmpty(cloudwatchConfig.getAWSAccessKeyId());
-        boolean hasSecretKey = Strings.isNullOrEmpty(cloudwatchConfig.getAWSSecretKey());
+        boolean hasAccessKey = !Strings.isNullOrEmpty(cloudwatchConfig.getAWSAccessKeyId());
+        boolean hasSecretKey = !Strings.isNullOrEmpty(cloudwatchConfig.getAWSSecretKey());
         if (hasAccessKey != hasSecretKey) {
             throw new IllegalArgumentException("Either Access Key ID or Secret Key is missing. Please provide both, " +
                     "or neither if you want to defer to DefaultAWSCredentialsProviderChain");
         }
-        return !hasAccessKey;
+        return hasAccessKey;
     }
 
     public void sendStatistics(String namespace, List<CloudwatchStatistic> statistics) {

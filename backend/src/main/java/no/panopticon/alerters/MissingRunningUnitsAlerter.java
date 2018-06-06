@@ -10,21 +10,30 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.stream.Collectors.joining;
 
 
 @Service
 public class MissingRunningUnitsAlerter {
 
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
+
+    private static final Duration WARN_WHEN_NO_CHEKIN_FOR_THIS_TIME_PERIOD = Duration.of(5, ChronoUnit.MINUTES);
+
     private final SlackClient slackClient;
     private PagerdutyClient pagerdutyClient;
 
-    private ConcurrentMap<Component, ExpiringMap<String, LocalDateTime>> checkins = new ConcurrentHashMap<>();
-    private ConcurrentMap<Component, ExpiringMap<LocalDateTime, Integer>> numberOfServersLast15Minutes = new ConcurrentHashMap<>();
+    private ExpiringMap<Component, LocalDateTime> lastCheckins = ExpiringMap.builder().expiration(1, TimeUnit.HOURS).expirationPolicy(ExpirationPolicy.ACCESSED).build();
 
     private static final ScheduledExecutorService SCHEDULER = Executors.newScheduledThreadPool(1);
 
@@ -36,24 +45,40 @@ public class MissingRunningUnitsAlerter {
     }
 
     private void checkForMissingRunningUnits() {
-        checkins.forEach((c, m) -> {
-            numberOfServersLast15Minutes.putIfAbsent(c, ExpiringMap.builder().maxSize(15).expirationPolicy(ExpirationPolicy.CREATED).build());
-            int lowestNumberOfServersLast15Minutes = numberOfServersLast15Minutes.get(c).entrySet().stream().mapToInt(Map.Entry::getValue).min().orElse(0);
-            int numberOfServersNow = m.size();
-            if (numberOfServersNow < lowestNumberOfServersLast15Minutes) {
-                slackClient.indicateFewerRunningUnits(c, lowestNumberOfServersLast15Minutes, numberOfServersNow);
-                pagerdutyClient.indicateFewerRunningUnits(c, lowestNumberOfServersLast15Minutes, numberOfServersNow);
-            } else if (numberOfServersNow > lowestNumberOfServersLast15Minutes) {
-                pagerdutyClient.indicateMoreRunningUnits(c, lowestNumberOfServersLast15Minutes, numberOfServersNow);
+
+        Map<Component, LocalDateTime> expiredComponents = new HashMap<>();
+        Map<Component, LocalDateTime> notExpiredComponents = new HashMap<>();
+
+        lastCheckins.forEach((c, e) -> {
+            if (e.isBefore(LocalDateTime.now().minus(WARN_WHEN_NO_CHEKIN_FOR_THIS_TIME_PERIOD))) {
+                expiredComponents.put(c, e);
+            } else {
+                notExpiredComponents.put(c, e);
             }
-            numberOfServersLast15Minutes.get(c).put(LocalDateTime.now(), numberOfServersNow);
         });
+
+        expiredComponents.forEach((c, e) -> {
+            slackClient.indicateNoRunningUnits(c);
+            pagerdutyClient.indicateNoRunningUnits(c);
+        });
+
+        notExpiredComponents.forEach((c, e) -> {
+            pagerdutyClient.indicateRunningUnits(c);
+        });
+
+        LOG.info(String.format("Checking expired components. Total: %d, not expired: %d, expired: %d\n\tNOT EXPIRED - last checkins:\n\t%s\n\tEXPIRED - last checkins:\n\t%s",
+                expiredComponents.size() + notExpiredComponents.size(),
+                notExpiredComponents.size(),
+                expiredComponents.size(),
+                notExpiredComponents.entrySet().stream().map(e -> e.getKey().describe() + ": " + e.getValue()).collect(joining("\n\t")),
+                expiredComponents.entrySet().stream().map(e -> e.getKey().describe() + ": " + e.getValue()).collect(joining("\n\t"))
+        ));
     }
 
     public void checkin(RunningUnit unit) {
-        ExpiringMap<String, LocalDateTime> servers = checkins.computeIfAbsent(Component.fromRunningUnit(unit), component -> ExpiringMap.builder().expiration(5, TimeUnit.MINUTES).expirationPolicy(ExpirationPolicy.CREATED).build());
-        servers.putIfAbsent(unit.getServer(), LocalDateTime.now());
-        servers.resetExpiration(unit.getServer());
+        Component component = Component.fromRunningUnit(unit);
+        lastCheckins.put(component, LocalDateTime.now());
+        lastCheckins.resetExpiration(component);
     }
 
 
@@ -98,6 +123,10 @@ public class MissingRunningUnitsAlerter {
 
         public static Component fromRunningUnit(RunningUnit unit) {
             return new Component(unit.getEnvironment(), unit.getSystem(), unit.getComponent());
+        }
+
+        public String describe() {
+            return String.format("%s: %s (%s)", environment, component, system);
         }
     }
 

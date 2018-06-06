@@ -120,14 +120,14 @@ public class SlackClient {
 
     }
 
-    public void indicateFewerRunningUnits(MissingRunningUnitsAlerter.Component c, int serversLastTime, int serversNow) {
+    public void indicateNoRunningUnits(MissingRunningUnitsAlerter.Component c) {
         connectIfNessesary();
 
         SlackChannel channel = slack.findChannelByName(slackConfiguration.channel);
 
         String name = String.format("[%s] %s", c.getEnvironment().toUpperCase(), c.getComponent());
 
-        String text = String.format("Antall servere som kjører appen har gått ned fra %d til %d", serversLastTime, serversNow);
+        String text = String.format("Ingen aktive servere for denne appen i panopticon! Sjekk om det er nede, eller om det bare er feil med målingene...");
         SlackAttachment attachment = new SlackAttachment(name, "", text, null);
         attachment.setColor(YELLOW);
         attachment.setFooter("Se alle detaljer i Panopticon: " + slackConfiguration.panopticonurl);

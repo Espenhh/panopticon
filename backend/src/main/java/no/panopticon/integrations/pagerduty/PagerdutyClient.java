@@ -80,13 +80,13 @@ public class PagerdutyClient {
         }
     }
 
-    public void indicateFewerRunningUnits(MissingRunningUnitsAlerter.Component c, int serversLastTime, int serversNow) {
+    public void indicateNoRunningUnits(MissingRunningUnitsAlerter.Component c) {
         if (!shouldAlert(c.getEnvironment())) {
             return;
         }
         try {
             Trigger trigger = new Trigger
-                    .Builder(String.format("%s - number of servers running the app has decreased from %s to %s.", createHumanReadableName(c), serversLastTime, serversNow))
+                    .Builder(String.format("%s - The app has 0 instances running!", createHumanReadableName(c)))
                     .withIncidentKey(createIncidentKey(c))
                     .addDetails("component", c.getComponent())
                     .addDetails("system", c.getSystem())
@@ -98,14 +98,14 @@ public class PagerdutyClient {
         }
     }
 
-    public void indicateMoreRunningUnits(MissingRunningUnitsAlerter.Component c, int serversLastTime, int serversNow) {
+    public void indicateRunningUnits(MissingRunningUnitsAlerter.Component c) {
         if (!shouldAlert(c.getEnvironment())) {
             return;
         }
         try {
             Resolution resolution = new Resolution
                     .Builder(createIncidentKey(c))
-                    .withDescription(String.format("%s - number of servers running the app has increased from %s to %s.", createHumanReadableName(c), serversLastTime, serversNow))
+                    .withDescription(String.format("%s - The app has units running again :)", createHumanReadableName(c)))
                     .addDetails("component", c.getComponent())
                     .addDetails("system", c.getSystem())
                     .addDetails("environment", c.getEnvironment())

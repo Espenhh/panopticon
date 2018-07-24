@@ -1,7 +1,8 @@
 window.addEventListener('load', function() {
 
+    var app
     var tokenRenewalTimeout
-    var url = window.location.href.includes('localhost') ? 'http://localhost:8080/api' : '/api';
+    var url = window.location.href.includes('localhost') ? 'http://localhost:8080/api' : '/api'
 
     var webAuth = new auth0.WebAuth({
         domain: window.domain,
@@ -11,29 +12,29 @@ window.addEventListener('load', function() {
     })
 
     function setSession(authResult) {
-        var expiresAt = JSON.stringify(authResult.expiresIn * 1000 + new Date().getTime());
+        var expiresAt = JSON.stringify(authResult.expiresIn * 1000 + new Date().getTime())
 
-        localStorage.setItem('id_token', authResult.idToken);
-        localStorage.setItem('expires_at', expiresAt);
+        localStorage.setItem('id_token', authResult.idToken)
+        localStorage.setItem('expires_at', expiresAt)
 
         scheduleRenewal()
     }
 
     function clearSession() {
-        localStorage.removeItem('id_token');
-        localStorage.removeItem('expires_at');
+        localStorage.removeItem('id_token')
+        localStorage.removeItem('expires_at')
 
         clearTimeout(tokenRenewalTimeout)
     }
 
     function scheduleRenewal() {
-        var expiresAt = JSON.parse(localStorage.getItem('expires_at'));
-        var delay = expiresAt - Date.now();
+        var expiresAt = JSON.parse(localStorage.getItem('expires_at'))
+        var delay = expiresAt - Date.now()
 
         if (delay > 0) {
             tokenRenewalTimeout = setTimeout(function() {
-                renewToken();
-            }, delay);
+                renewToken()
+            }, delay)
         }
     }
 
@@ -50,11 +51,19 @@ window.addEventListener('load', function() {
                 webAuth.authorize();
             } else {
                 setSession(authResult)
-                Elm.Main.fullscreen({
-                    token: authResult.idToken,
-                    url: url
-                })
+                startApp(authResult.idToken)
             }
+        })
+    }
+
+    function startApp(token) {
+        app = Elm.Main.fullscreen({
+            token: token,
+            url: url
+        })
+
+        app.ports.login.subscribe(function() {
+            webAuth.authorize()
         })
     }
 
@@ -63,10 +72,7 @@ window.addEventListener('load', function() {
             if (authResult && authResult.idToken) {
                 console.log('Start with newly created token')
                 setSession(authResult)
-                Elm.Main.fullscreen({
-                    token: authResult.idToken,
-                    url: url
-                })
+                startApp(authResult.idToken)
             } else if (err) {
                 console.log(err)
                 clearSession()
@@ -74,11 +80,7 @@ window.addEventListener('load', function() {
                 if (isAuthenticated()) {
                     console.log('Authenticated until', new Date(JSON.parse(localStorage.getItem('expires_at'))))
                     scheduleRenewal()
-                    Elm.Main.fullscreen({
-                        token: localStorage.getItem('id_token'),
-                        url: url
-
-                    })
+                    startApp(localStorage.getItem('id_token'))
                 } else {
                     console.log('No token, attempting to retrieve one')
                     clearSession()

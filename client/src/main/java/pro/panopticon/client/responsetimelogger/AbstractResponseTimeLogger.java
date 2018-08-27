@@ -33,7 +33,9 @@ public class AbstractResponseTimeLogger implements Sensor {
         List<CloudwatchStatistic> toSubmit = this.counts;
         counts = new Vector<>();
 
-        cloudwatchClient.sendStatistics(namespace, toSubmit);
+        if (cloudwatchClient != null) {
+            cloudwatchClient.sendStatistics(namespace, toSubmit);
+        }
 
         // This sensor returns no measurements for now – it's just implemented as a sensor for similarity to the other concepts
         return Collections.emptyList();

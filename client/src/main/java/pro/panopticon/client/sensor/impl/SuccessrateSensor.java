@@ -28,7 +28,7 @@ public class SuccessrateSensor implements Sensor {
         this.errorLimit = errorLimit;
     }
 
-    public void tickSuccess(String key) {
+    public synchronized void tickSuccess(String key) {
         try {
             getQueueForKey(key).add(Event.SUCCESS);
         } catch (Exception e) {
@@ -36,7 +36,7 @@ public class SuccessrateSensor implements Sensor {
         }
     }
 
-    public void tickFailure(String key) {
+    public synchronized void tickFailure(String key) {
         try {
             getQueueForKey(key).add(Event.FAILURE);
         } catch (Exception e) {

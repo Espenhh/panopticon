@@ -7,6 +7,8 @@ import pro.panopticon.client.awscloudwatch.HasCloudwatchConfig;
 import pro.panopticon.client.model.Measurement;
 import pro.panopticon.client.sensor.Sensor;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -34,6 +36,16 @@ public class AbstractEventLogger implements Sensor {
 
     public void tickAndLog(HasEventInfo event, String... logappends) {
         tickAndLog(event, 1, logappends);
+    }
+
+    public void tickAndLogException(HasEventInfo event, Exception e) {
+        tickAndLog(event, 1, stackTraceToString(e));
+    }
+
+    private String stackTraceToString(Exception e) {
+        StringWriter stringWriter = new StringWriter();
+        e.printStackTrace(new PrintWriter(stringWriter));
+        return stringWriter.toString();
     }
 
     public void tickAndLog(HasEventInfo event, double count, String... logappends) {

@@ -43,10 +43,10 @@ public class StatusSnapshot {
     }
 
     public static class Measurement {
-        private final String key;
-        private final String status;
-        private final String displayValue;
-        private final long numericValue;
+        public final String key;
+        public final String status;
+        public final String displayValue;
+        public final long numericValue;
 
         public Measurement(String key, String status, String displayValue, long numericValue) {
             this.key = key;

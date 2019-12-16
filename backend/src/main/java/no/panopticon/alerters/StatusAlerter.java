@@ -110,7 +110,7 @@ public class StatusAlerter {
     private String createMessage(Map.Entry<String, List<ThingToAlertAbout>> m) {
         return m.getValue().stream().sorted(Comparator.comparing(a -> a.measurement.getStatus())).map(t -> {
             String emoji = calculateEmoji(t);
-            return String.format("%s %s: %s", emoji, t.runningUnit.getServer(), t.measurement.getDisplayValue());
+            return String.format("%s %s:\t_%s_", emoji, t.runningUnit.getServer(), t.measurement.getDisplayValue());
         }).collect(joining("\n"));
     }
 

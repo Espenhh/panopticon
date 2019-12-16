@@ -103,14 +103,25 @@ public class StatusAlerter {
     private String createHeader(Map.Entry<String, List<ThingToAlertAbout>> m) {
         long numberOfErrors = m.getValue().stream().filter(t -> t.measurement.status.equalsIgnoreCase("ERROR")).count();
         long numberOfWarns = m.getValue().stream().filter(t -> t.measurement.status.equalsIgnoreCase("WARN")).count();
-        return String.format("%s: %d x error, %d x warn", m.getKey(), numberOfErrors, numberOfWarns);
+        long numberOfOK = m.getValue().stream().filter(t -> t.measurement.status.equalsIgnoreCase("INFO")).count();
+        return String.format("%s: %d x error, %d x warn, %d x ok", m.getKey(), numberOfErrors, numberOfWarns, numberOfOK);
     }
 
     private String createMessage(Map.Entry<String, List<ThingToAlertAbout>> m) {
         return m.getValue().stream().sorted(Comparator.comparing(a -> a.measurement.getStatus())).map(t -> {
-            String emoji = t.measurement.getStatus().equalsIgnoreCase("ERROR") ? "🟥️" : "🟨";
+            String emoji = calculateEmoji(t);
             return String.format("%s %s: %s", emoji, t.runningUnit.getServer(), t.measurement.getDisplayValue());
         }).collect(joining("\n"));
+    }
+
+    private String calculateEmoji(ThingToAlertAbout t) {
+        if (t.measurement.getStatus().equalsIgnoreCase("ERROR")) {
+            return "🟥️";
+        } else if (t.measurement.getStatus().equalsIgnoreCase("WARN")) {
+            return "🟨";
+        } else {
+            return "🟩";
+        }
     }
 
     private class ThingToAlertAbout {

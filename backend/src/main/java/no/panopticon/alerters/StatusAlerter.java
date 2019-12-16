@@ -4,6 +4,7 @@ import no.panopticon.integrations.pagerduty.PagerdutyClient;
 import no.panopticon.integrations.slack.SlackClient;
 import no.panopticon.storage.RunningUnit;
 import no.panopticon.storage.StatusSnapshot;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -110,7 +111,8 @@ public class StatusAlerter {
     private String createMessage(Map.Entry<String, List<ThingToAlertAbout>> m) {
         return m.getValue().stream().sorted(Comparator.comparing(a -> a.measurement.getStatus())).map(t -> {
             String emoji = calculateEmoji(t);
-            return String.format("%s %s:\t_%s_", emoji, t.runningUnit.getServer(), t.measurement.getDisplayValue());
+            String serverName = StringUtils.rightPad(StringUtils.abbreviate(t.runningUnit.getServer(), 20), 20, " ");
+            return String.format("%s `%s:` _%s_", emoji, serverName, t.measurement.getDisplayValue());
         }).collect(joining("\n"));
     }
 

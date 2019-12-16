@@ -92,7 +92,7 @@ public class SlackClient {
 
         SlackChannel channel = slack.findChannelByName(slackConfiguration.channel);
 
-        String heading = String.format("*%d aktive varslinger akkurat nå. Se detaljert hendelseslogg i #%s*", alertLines.size(), slackConfiguration.channelDetailed);
+        String heading = String.format("*%d målepunkter med feil akkurat nå. Se detaljert hendelseslogg i #%s*", alertLines.size(), slackConfiguration.channelDetailed);
 
         List<SlackAttachment> attachments = alertLines.stream().map(l -> {
             SlackAttachment a = new SlackAttachment(l.header, null, l.message, null);

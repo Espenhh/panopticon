@@ -109,6 +109,14 @@ public class StatusAlerter {
     }
 
     private String createMessage(Map.Entry<String, List<ThingToAlertAbout>> m) {
+        return createMeasurementDescription(m) + createMeasurementDetails(m);
+    }
+
+    private String createMeasurementDescription(Map.Entry<String, List<ThingToAlertAbout>> m) {
+        return m.getValue().stream().findFirst().map(a -> a.measurement.getDescription() + "\n").orElse("");
+    }
+
+    private String createMeasurementDetails(Map.Entry<String, List<ThingToAlertAbout>> m) {
         return m.getValue().stream().sorted(Comparator.comparing(a -> a.measurement.getStatus())).map(t -> {
             String emoji = calculateEmoji(t);
             String serverName = StringUtils.rightPad(StringUtils.abbreviate(t.runningUnit.getServer(), 13), 13, " ");

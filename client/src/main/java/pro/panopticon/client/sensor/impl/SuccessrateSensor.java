@@ -17,15 +17,48 @@ public class SuccessrateSensor implements Sensor {
 
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
+    /**
+     * Number of events to keep.
+     */
     private final int numberToKeep;
+
+    /**
+     * Triggers an alert in panopticon when reached.
+     * Should always be a Double between 0.00 and 1.00
+     * Format: percentage / 100
+     *
+     * Example: 0.1 will trigger a warning at 10% failure rate
+     */
     private final Double warnLimit;
+
+    /**
+     * Triggers an alert in panopticon when reached.
+     * Should always be a Double between 0.00 and 1.00
+     * Format: percentage / 100
+     *
+     * Example: 0.2 will trigger an alert at 20% failure rate
+     */
     private final Double errorLimit;
+
+    /**
+     * A human / guard-friendly description of what is happening and which actions that needs to be taken.
+     *
+     * Example:
+     * "When this alert is triggered, Feature X is not working properly. You should contact one of these people at Company Y. Phone number: 12 34 56 78."
+     */
+    private final String description;
+
     private final Map<String, CircularFifoQueue<Event>> eventQueues = new HashMap<>();
 
-    public SuccessrateSensor(int numberToKeep, Double warnLimit, Double errorLimit) {
+    public SuccessrateSensor(int numberToKeep, Double warnLimit, Double errorLimit, String description) {
         this.numberToKeep = numberToKeep;
         this.warnLimit = warnLimit;
         this.errorLimit = errorLimit;
+        this.description = description;
+    }
+
+    public SuccessrateSensor(int numberToKeep, Double warnLimit, Double errorLimit) {
+        this(numberToKeep, warnLimit, errorLimit, null);
     }
 
     public synchronized void tickSuccess(String key) {
@@ -65,7 +98,7 @@ public class SuccessrateSensor implements Sensor {
                             percentFailureDouble * 100,
                             enoughDataToAlert ? "" : " - not enough calls to report status yet"
                     );
-                    return new Measurement(e.getKey(), getStatusFromPercentage(enoughDataToAlert, percentFailureDouble), display, new Measurement.CloudwatchValue(percentFailureDouble * 100, StandardUnit.Percent));
+                    return new Measurement(e.getKey(), getStatusFromPercentage(enoughDataToAlert, percentFailureDouble), display, new Measurement.CloudwatchValue(percentFailureDouble * 100, StandardUnit.Percent), description);
                 })
                 .collect(toList());
     }

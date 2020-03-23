@@ -34,7 +34,7 @@ public class UpdatedStatus {
     public StatusSnapshot toStatusSnapshot() {
         return new StatusSnapshot(LocalDateTime.now(),
                 measurements.stream()
-                        .map(m -> new StatusSnapshot.Measurement(m.key, m.status, m.displayValue, m.numericValue))
+                        .map(m -> new StatusSnapshot.Measurement(m.key, m.status, m.displayValue, m.numericValue, m.description))
                         .collect(toList())
         );
     }
@@ -44,6 +44,7 @@ public class UpdatedStatus {
         public String status;
         public String displayValue;
         public long numericValue;
+        public String description;
 
         @Override
         public String toString() {
@@ -51,7 +52,8 @@ public class UpdatedStatus {
                     "key='" + key + '\'' +
                     ", status='" + status + '\'' +
                     ", displayValue='" + displayValue + '\'' +
-                    ", numericValue=" + numericValue +
+                    ", numericValue=" + numericValue + '\'' +
+                    ", description=" + description +
                     '}';
         }
     }

@@ -109,4 +109,14 @@ public class SuccessrateSensorTest {
         assertThat(key2.get().displayValue, is("Last 100 calls: 98 success, 2 failure (2.00% failure)"));
     }
 
+    @Test
+    public void should_display_description_when_present() {
+        SuccessrateSensor sensor = new SuccessrateSensor(100, 0.1, 0.2, "A long and good description to vakta is always nice");
+        IntStream.range(0, 50).forEach(i -> sensor.tickSuccess("key1"));
+        IntStream.range(0, 50).forEach(i -> sensor.tickFailure("key1"));
+        List<Measurement> measurements = sensor.measure();
+
+        Optional<Measurement> key1 = measurements.stream().filter(m -> m.key.equals("key1")).findAny();
+        assertThat(key1.get().description, is("A long and good description to vakta is always nice"));
+    }
 }

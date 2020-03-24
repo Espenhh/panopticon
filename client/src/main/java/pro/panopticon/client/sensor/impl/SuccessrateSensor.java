@@ -23,7 +23,7 @@ public class SuccessrateSensor implements Sensor {
     private final int numberToKeep;
 
     /**
-     * Triggers an alert in panopticon when reached.
+     * Triggers an alert to Slack when reached.
      * Should always be a Double between 0.00 and 1.00
      * Format: percentage / 100
      *
@@ -32,7 +32,7 @@ public class SuccessrateSensor implements Sensor {
     private final Double warnLimit;
 
     /**
-     * Triggers an alert in panopticon when reached.
+     * Triggers an alert to Slack and PagerDuty when reached.
      * Should always be a Double between 0.00 and 1.00
      * Format: percentage / 100
      *
@@ -44,7 +44,7 @@ public class SuccessrateSensor implements Sensor {
      * A human / guard-friendly description of what is happening and which actions that needs to be taken.
      *
      * Example:
-     * "When this alert is triggered, Feature X is not working properly. You should contact one of these people at Company Y. Phone number: 12 34 56 78."
+     * "When this alert is triggered, the critical Feature X is not working properly. You should contact Company Y."
      */
     private final String description;
 

@@ -17,12 +17,8 @@ public class Measurement {
         this.description = description;
     }
 
-    public Measurement(String key, String status, String displayValue, CloudwatchValue cloudwatchValue) {
-        this(key, status, displayValue, cloudwatchValue, null);
-    }
-
-    public Measurement(String key, String status, String displayValue) {
-        this(key, status, displayValue, null, null);
+    public Measurement(String key, String status, String displayValue, String description) {
+        this(key, status, displayValue, null, description);
     }
 
     @Override

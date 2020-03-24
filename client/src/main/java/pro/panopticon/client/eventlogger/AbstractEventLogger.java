@@ -82,7 +82,7 @@ public class AbstractEventLogger implements Sensor {
         }
 
         return mapToProcess.entrySet().stream()
-                .map(e -> new Measurement("audit." + e.getKey(), "INFO", "Last minute: " + e.getValue().doubleValue()))
+                .map(e -> new Measurement("audit." + e.getKey(), "INFO", "Last minute: " + e.getValue().doubleValue(), ""))
                 .collect(toList());
     }
 }

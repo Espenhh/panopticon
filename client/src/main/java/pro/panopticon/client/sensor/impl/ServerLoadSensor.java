@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ServerLoadSensor implements Sensor {
+    private static final String DESCRIPTION = "";
     @Override
     public List<Measurement> measure() {
         SystemStatus s = new SystemStatus();
@@ -26,7 +27,7 @@ public class ServerLoadSensor implements Sensor {
         } else {
             status = "INFO";
         }
-        measurements.add(new Measurement("load.avg", status, formatted, new Measurement.CloudwatchValue(load, StandardUnit.None)));
+        measurements.add(new Measurement("load.avg", status, formatted, new Measurement.CloudwatchValue(load, StandardUnit.None), DESCRIPTION));
 
         return measurements;
     }

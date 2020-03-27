@@ -1,5 +1,6 @@
 package pro.panopticon.client.sensor.impl;
 
+import org.hamcrest.core.StringContains;
 import org.junit.Test;
 import pro.panopticon.client.model.Measurement;
 
@@ -8,6 +9,7 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 
 public class SuccessrateSensorTest {
@@ -22,7 +24,8 @@ public class SuccessrateSensorTest {
         Optional<Measurement> key1 = measurements.stream().filter(m -> m.key.equals("key1")).findAny();
         assertThat(key1.isPresent(), is(true));
         assertThat(key1.get().status, is("INFO"));
-        assertThat(key1.get().displayValue, is("Last 2 calls: 1 success, 1 failure (50.00% failure) - not enough calls to report status yet"));
+        assertThat(key1.get().displayValue, containsString("Last 2 calls: 1 success, 1 failure"));
+        assertThat(key1.get().displayValue, containsString("not enough calls to report status yet"));
     }
 
     @Test
@@ -34,7 +37,7 @@ public class SuccessrateSensorTest {
         Optional<Measurement> key1 = measurements.stream().filter(m -> m.key.equals("key1")).findAny();
         assertThat(key1.isPresent(), is(true));
         assertThat(key1.get().status, is("INFO"));
-        assertThat(key1.get().displayValue, is("Last 100 calls: 100 success, 0 failure (0.00% failure)"));
+        assertThat(key1.get().displayValue, containsString("Last 100 calls: 100 success, 0 failure"));
     }
 
     @Test
@@ -47,7 +50,7 @@ public class SuccessrateSensorTest {
         Optional<Measurement> key1 = measurements.stream().filter(m -> m.key.equals("key1")).findAny();
         assertThat(key1.isPresent(), is(true));
         assertThat(key1.get().status, is("WARN"));
-        assertThat(key1.get().displayValue, is("Last 100 calls: 90 success, 10 failure (10.00% failure)"));
+        assertThat(key1.get().displayValue, containsString("Last 100 calls: 90 success, 10 failure"));
     }
 
     @Test
@@ -60,7 +63,7 @@ public class SuccessrateSensorTest {
         Optional<Measurement> key1 = measurements.stream().filter(m -> m.key.equals("key1")).findAny();
         assertThat(key1.isPresent(), is(true));
         assertThat(key1.get().status, is("ERROR"));
-        assertThat(key1.get().displayValue, is("Last 100 calls: 80 success, 20 failure (20.00% failure)"));
+        assertThat(key1.get().displayValue, containsString("Last 100 calls: 80 success, 20 failure"));
     }
 
     @Test
@@ -72,7 +75,7 @@ public class SuccessrateSensorTest {
         Optional<Measurement> key1 = measurements.stream().filter(m -> m.key.equals("key1")).findAny();
         assertThat(key1.isPresent(), is(true));
         assertThat(key1.get().status, is("INFO"));
-        assertThat(key1.get().displayValue, is("Last 100 calls: 0 success, 100 failure (100.00% failure)"));
+        assertThat(key1.get().displayValue, containsString("Last 100 calls: 0 success, 100 failure"));
     }
 
     @Test
@@ -85,7 +88,7 @@ public class SuccessrateSensorTest {
         Optional<Measurement> key1 = measurements.stream().filter(m -> m.key.equals("key1")).findAny();
         assertThat(key1.isPresent(), is(true));
         assertThat(key1.get().status, is("INFO"));
-        assertThat(key1.get().displayValue, is("Last 100 calls: 100 success, 0 failure (0.00% failure)"));
+        assertThat(key1.get().displayValue, containsString("Last 100 calls: 100 success, 0 failure"));
     }
 
     @Test
@@ -101,12 +104,12 @@ public class SuccessrateSensorTest {
         Optional<Measurement> key1 = measurements.stream().filter(m -> m.key.equals("key1")).findAny();
         assertThat(key1.isPresent(), is(true));
         assertThat(key1.get().status, is("ERROR"));
-        assertThat(key1.get().displayValue, is("Last 100 calls: 50 success, 50 failure (50.00% failure)"));
+        assertThat(key1.get().displayValue, containsString("Last 100 calls: 50 success, 50 failure"));
 
         Optional<Measurement> key2 = measurements.stream().filter(m -> m.key.equals("key2")).findAny();
         assertThat(key2.isPresent(), is(true));
         assertThat(key2.get().status, is("INFO"));
-        assertThat(key2.get().displayValue, is("Last 100 calls: 98 success, 2 failure (2.00% failure)"));
+        assertThat(key2.get().displayValue, containsString("Last 100 calls: 98 success, 2 failure"));
     }
 
     @Test

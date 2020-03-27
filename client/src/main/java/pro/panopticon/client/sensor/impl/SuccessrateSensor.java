@@ -10,6 +10,7 @@ import pro.panopticon.client.sensor.Sensor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
 
@@ -17,10 +18,30 @@ public class SuccessrateSensor implements Sensor {
 
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
+    /**
+     * Number of events to keep.
+     */
     private final int numberToKeep;
+
+    /**
+     * Triggers an alert to Slack when reached.
+     * Should always be a Double between 0.00 and 1.00
+     * Format: percentage / 100
+     *
+     * Example: 0.1 will trigger a warning at 10% failure rate
+     */
     private final Double warnLimit;
+
+    /**
+     * Triggers an alert to Slack and PagerDuty when reached.
+     * Should always be a Double between 0.00 and 1.00
+     * Format: percentage / 100
+     *
+     * Example: 0.2 will trigger an alert at 20% failure rate
+     */
     private final Double errorLimit;
-    private final Map<String, CircularFifoQueue<Event>> eventQueues = new HashMap<>();
+
+    private final Map<AlertInfo, CircularFifoQueue<Event>> eventQueues = new HashMap<>();
 
     public SuccessrateSensor(int numberToKeep, Double warnLimit, Double errorLimit) {
         this.numberToKeep = numberToKeep;
@@ -28,30 +49,41 @@ public class SuccessrateSensor implements Sensor {
         this.errorLimit = errorLimit;
     }
 
+    @Deprecated
     public synchronized void tickSuccess(String key) {
-        try {
-            getQueueForKey(key).add(Event.SUCCESS);
-        } catch (Exception e) {
-            LOG.warn("Something went wrong when counting SUCCESS for " + key, e);
-        }
+        tickSuccess(new AlertInfo(key, null));
     }
 
+    @Deprecated
     public synchronized void tickFailure(String key) {
+        tickFailure(new AlertInfo(key, null));
+    }
+
+    public synchronized void tickFailure(AlertInfo alertInfo) {
         try {
-            getQueueForKey(key).add(Event.FAILURE);
+            getQueueForKey(alertInfo).add(Event.FAILURE);
         } catch (Exception e) {
-            LOG.warn("Something went wrong when counting FAILURE for " + key, e);
+            LOG.warn("Something went wrong when counting FAILURE for " + alertInfo.getSensorKey(), e);
         }
     }
 
-    private CircularFifoQueue<Event> getQueueForKey(String key) {
+    public synchronized void tickSuccess(AlertInfo alertInfo) {
+        try {
+            getQueueForKey(alertInfo).add(Event.SUCCESS);
+        } catch (Exception e) {
+            LOG.warn("Something went wrong when counting SUCCESS for " + alertInfo.getSensorKey(), e);
+        }
+    }
+
+    private CircularFifoQueue<Event> getQueueForKey(AlertInfo key) {
         return eventQueues.computeIfAbsent(key, k -> new CircularFifoQueue<>(numberToKeep));
     }
 
     @Override
     public List<Measurement> measure() {
         return eventQueues.entrySet().stream()
-                .map((Map.Entry<String, CircularFifoQueue<Event>> e) -> {
+                .map((Map.Entry<AlertInfo, CircularFifoQueue<Event>> e) -> {
+                    AlertInfo alertInfo = e.getKey();
                     List<Event> events = e.getValue().stream().collect(toList());
                     int all = events.size();
                     long success = events.stream().filter(a -> a == Event.SUCCESS).count();
@@ -65,7 +97,7 @@ public class SuccessrateSensor implements Sensor {
                             percentFailureDouble * 100,
                             enoughDataToAlert ? "" : " - not enough calls to report status yet"
                     );
-                    return new Measurement(e.getKey(), getStatusFromPercentage(enoughDataToAlert, percentFailureDouble), display, new Measurement.CloudwatchValue(percentFailureDouble * 100, StandardUnit.Percent));
+                    return new Measurement(alertInfo.getSensorKey(), getStatusFromPercentage(enoughDataToAlert, percentFailureDouble), display, new Measurement.CloudwatchValue(percentFailureDouble * 100, StandardUnit.Percent), alertInfo.description);
                 })
                 .collect(toList());
     }
@@ -82,4 +114,56 @@ public class SuccessrateSensor implements Sensor {
         FAILURE
     }
 
+    public static class AlertInfo {
+
+        /**
+         * Key used to separate alerts from each other.
+         * Example:
+         * "entur.rest.calls"
+         */
+        private final String sensorKey;
+
+        /**
+         * A human / guard-friendly description of what is happening and which actions that needs to be taken.
+         *
+         * Example:
+         * "When this alert is triggered, the critical Feature X is not working properly. You should contact Company Y."
+         */
+        private final String description;
+
+        public AlertInfo(String sensorKey, String description) {
+            this.sensorKey = sensorKey;
+            this.description = description;
+        }
+
+        public String getSensorKey() {
+            return sensorKey;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            AlertInfo alertInfo = (AlertInfo) o;
+            return Objects.equals(sensorKey, alertInfo.sensorKey) &&
+                    Objects.equals(description, alertInfo.description);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(sensorKey, description);
+        }
+
+        @Override
+        public String toString() {
+            return "AlertInfo{" +
+                    "sensorKey='" + sensorKey + '\'' +
+                    ", description='" + description + '\'' +
+                    '}';
+        }
+    }
 }

@@ -47,12 +47,14 @@ public class StatusSnapshot {
         public final String status;
         public final String displayValue;
         public final long numericValue;
+        public final String description;
 
-        public Measurement(String key, String status, String displayValue, long numericValue) {
+        public Measurement(String key, String status, String displayValue, long numericValue, String description) {
             this.key = key;
             this.status = status;
             this.displayValue = displayValue;
             this.numericValue = numericValue;
+            this.description = description;
         }
 
         public String getKey() {
@@ -69,6 +71,10 @@ public class StatusSnapshot {
 
         public long getNumericValue() {
             return numericValue;
+        }
+
+        public String getDescription() {
+            return description;
         }
     }
 }

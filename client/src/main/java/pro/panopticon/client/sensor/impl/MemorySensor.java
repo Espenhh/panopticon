@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MemorySensor implements Sensor {
-
+    private static final String DESCRIPTION = "When this alarm is triggered, you should check the memory status of the other nodes as well. " +
+            "There might be a memory leak somewhere in the application triggering this, so a restart will buy you some time";
     private static final long BYTES_IN_MB = 1024 * 1024;
 
     private final int warnLimitNow;
@@ -49,7 +50,7 @@ public class MemorySensor implements Sensor {
 
         String displayValue = toMB(used) + " of " + toMB(max) + " MB (" + percentUsed + "%)";
 
-        measurements.add(new Measurement(key, status(percentUsed, warnLimit, errorLimit), displayValue, new Measurement.CloudwatchValue(percentUsed, StandardUnit.Percent)));
+        measurements.add(new Measurement(key, status(percentUsed, warnLimit, errorLimit), displayValue, new Measurement.CloudwatchValue(percentUsed, StandardUnit.Percent), DESCRIPTION));
     }
 
     private String status(long percentUsed, int warnLimit, int errorLimit) {

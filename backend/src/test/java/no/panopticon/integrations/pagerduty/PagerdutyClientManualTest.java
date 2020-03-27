@@ -24,17 +24,17 @@ public class PagerdutyClientManualTest {
 
     @Test
     public void indicate_error() {
-        client.alertAboutStatus(RUNNING_UNIT, new StatusSnapshot.Measurement("rest.calls", "ERROR", "Last 1000 calls: 500 success, 500 failure (50.00% failure)", 0));
+        client.alertAboutStatus(RUNNING_UNIT, new StatusSnapshot.Measurement("rest.calls", "ERROR", "Last 1000 calls: 500 success, 500 failure (50.00% failure)", 0, "description"));
     }
 
     @Test
     public void indicate_warn() {
-        client.alertAboutStatus(RUNNING_UNIT, new StatusSnapshot.Measurement("rest.calls", "WARN", "Last 1000 calls: 800 success, 200 failure (20.00% failure)", 0));
+        client.alertAboutStatus(RUNNING_UNIT, new StatusSnapshot.Measurement("rest.calls", "WARN", "Last 1000 calls: 800 success, 200 failure (20.00% failure)", 0, "description"));
     }
 
     @Test
     public void indicate_info() {
-        client.alertAboutStatus(RUNNING_UNIT, new StatusSnapshot.Measurement("rest.calls", "INFO", "Last 1000 calls: 950 success, 50 failure (5.00% failure)", 0));
+        client.alertAboutStatus(RUNNING_UNIT, new StatusSnapshot.Measurement("rest.calls", "INFO", "Last 1000 calls: 950 success, 50 failure (5.00% failure)", 0, "description"));
     }
 
 }

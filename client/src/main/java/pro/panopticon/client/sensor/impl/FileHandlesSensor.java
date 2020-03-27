@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileHandlesSensor implements Sensor {
-
+    private static final String DESCRIPTION = "";
     private final long warnAfter;
     private final long errorAfter;
 
@@ -29,7 +29,7 @@ public class FileHandlesSensor implements Sensor {
         double percent = ((double) open / (double) max) * 100;
         String displayValue = String.format("%s of %s filehandles used (%.2f%%)", open, max, percent);
 
-        measurements.add(new Measurement("filehandles", statusFromOpenFileHandles(open), displayValue, new Measurement.CloudwatchValue(percent, StandardUnit.Percent)));
+        measurements.add(new Measurement("filehandles", statusFromOpenFileHandles(open), displayValue, new Measurement.CloudwatchValue(percent, StandardUnit.Percent), DESCRIPTION));
 
         return measurements;
     }

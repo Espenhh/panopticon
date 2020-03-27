@@ -7,16 +7,18 @@ public class Measurement {
     public String status;
     public String displayValue;
     public CloudwatchValue cloudwatchValue;
+    public String description;
 
-    public Measurement(String key, String status, String displayValue, CloudwatchValue cloudwatchValue) {
+    public Measurement(String key, String status, String displayValue, CloudwatchValue cloudwatchValue, String description) {
         this.key = key;
         this.status = status;
         this.displayValue = displayValue;
         this.cloudwatchValue = cloudwatchValue;
+        this.description = description;
     }
 
-    public Measurement(String key, String status, String displayValue) {
-        this(key, status, displayValue, null);
+    public Measurement(String key, String status, String displayValue, String description) {
+        this(key, status, displayValue, null, description);
     }
 
     @Override
@@ -26,6 +28,7 @@ public class Measurement {
                 ", status='" + status + '\'' +
                 ", displayValue='" + displayValue + '\'' +
                 ", cloudwatchValue=" + cloudwatchValue +
+                ", description=" + description +
                 '}';
     }
 

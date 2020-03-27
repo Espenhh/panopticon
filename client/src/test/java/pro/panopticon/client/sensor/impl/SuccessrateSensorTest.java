@@ -15,8 +15,8 @@ public class SuccessrateSensorTest {
     @Test
     public void should_not_warn_before_reaching_enough_data() {
         SuccessrateSensor sensor = new SuccessrateSensor(100, 0.1, 0.2);
-        sensor.tickSuccess("key1");
-        sensor.tickFailure("key1");
+        sensor.tickSuccess(new SuccessrateSensor.AlertInfo("key1", "description"));
+        sensor.tickFailure(new SuccessrateSensor.AlertInfo("key1", "description"));
         List<Measurement> measurements = sensor.measure();
         assertThat(measurements.size(), is(1));
         Optional<Measurement> key1 = measurements.stream().filter(m -> m.key.equals("key1")).findAny();
@@ -28,7 +28,7 @@ public class SuccessrateSensorTest {
     @Test
     public void should_get_status_info() {
         SuccessrateSensor sensor = new SuccessrateSensor(100, 0.1, 0.2);
-        IntStream.range(0, 100).forEach(i -> sensor.tickSuccess("key1"));
+        IntStream.range(0, 100).forEach(i -> sensor.tickSuccess(new SuccessrateSensor.AlertInfo("key1", "description")));
         List<Measurement> measurements = sensor.measure();
         assertThat(measurements.size(), is(1));
         Optional<Measurement> key1 = measurements.stream().filter(m -> m.key.equals("key1")).findAny();
@@ -40,8 +40,8 @@ public class SuccessrateSensorTest {
     @Test
     public void should_get_status_warn() {
         SuccessrateSensor sensor = new SuccessrateSensor(100, 0.1, 0.2);
-        IntStream.range(0, 90).forEach(i -> sensor.tickSuccess("key1"));
-        IntStream.range(0, 10).forEach(i -> sensor.tickFailure("key1"));
+        IntStream.range(0, 90).forEach(i -> sensor.tickSuccess(new SuccessrateSensor.AlertInfo("key1", "description")));
+        IntStream.range(0, 10).forEach(i -> sensor.tickFailure(new SuccessrateSensor.AlertInfo("key1", "description")));
         List<Measurement> measurements = sensor.measure();
         assertThat(measurements.size(), is(1));
         Optional<Measurement> key1 = measurements.stream().filter(m -> m.key.equals("key1")).findAny();
@@ -53,8 +53,8 @@ public class SuccessrateSensorTest {
     @Test
     public void should_get_status_error() {
         SuccessrateSensor sensor = new SuccessrateSensor(100, 0.1, 0.2);
-        IntStream.range(0, 80).forEach(i -> sensor.tickSuccess("key1"));
-        IntStream.range(0, 20).forEach(i -> sensor.tickFailure("key1"));
+        IntStream.range(0, 80).forEach(i -> sensor.tickSuccess(new SuccessrateSensor.AlertInfo("key1", "description")));
+        IntStream.range(0, 20).forEach(i -> sensor.tickFailure(new SuccessrateSensor.AlertInfo("key1", "description")));
         List<Measurement> measurements = sensor.measure();
         assertThat(measurements.size(), is(1));
         Optional<Measurement> key1 = measurements.stream().filter(m -> m.key.equals("key1")).findAny();
@@ -66,7 +66,7 @@ public class SuccessrateSensorTest {
     @Test
     public void should_get_status_info_when_warn_levels_is_null() {
         SuccessrateSensor sensor = new SuccessrateSensor(100, null, null);
-        IntStream.range(0, 100).forEach(i -> sensor.tickFailure("key1"));
+        IntStream.range(0, 100).forEach(i -> sensor.tickFailure(new SuccessrateSensor.AlertInfo("key1", "description")));
         List<Measurement> measurements = sensor.measure();
         assertThat(measurements.size(), is(1));
         Optional<Measurement> key1 = measurements.stream().filter(m -> m.key.equals("key1")).findAny();
@@ -78,8 +78,8 @@ public class SuccessrateSensorTest {
     @Test
     public void should_only_keep_last_XXX_measurements() {
         SuccessrateSensor sensor = new SuccessrateSensor(100, 0.1, 0.2);
-        IntStream.range(0, 100).forEach(i -> sensor.tickFailure("key1"));
-        IntStream.range(0, 100).forEach(i -> sensor.tickSuccess("key1"));
+        IntStream.range(0, 100).forEach(i -> sensor.tickFailure(new SuccessrateSensor.AlertInfo("key1", "description")));
+        IntStream.range(0, 100).forEach(i -> sensor.tickSuccess(new SuccessrateSensor.AlertInfo("key1", "description")));
         List<Measurement> measurements = sensor.measure();
         assertThat(measurements.size(), is(1));
         Optional<Measurement> key1 = measurements.stream().filter(m -> m.key.equals("key1")).findAny();
@@ -91,10 +91,10 @@ public class SuccessrateSensorTest {
     @Test
     public void should_keep_data_for_multiple_keys() {
         SuccessrateSensor sensor = new SuccessrateSensor(100, 0.1, 0.2);
-        IntStream.range(0, 50).forEach(i -> sensor.tickSuccess("key1"));
-        IntStream.range(0, 50).forEach(i -> sensor.tickFailure("key1"));
-        IntStream.range(0, 98).forEach(i -> sensor.tickSuccess("key2"));
-        IntStream.range(0, 2).forEach(i -> sensor.tickFailure("key2"));
+        IntStream.range(0, 50).forEach(i -> sensor.tickSuccess(new SuccessrateSensor.AlertInfo("key1", "description")));
+        IntStream.range(0, 50).forEach(i -> sensor.tickFailure(new SuccessrateSensor.AlertInfo("key1", "description")));
+        IntStream.range(0, 98).forEach(i -> sensor.tickSuccess(new SuccessrateSensor.AlertInfo("key2", "description")));
+        IntStream.range(0, 2).forEach(i -> sensor.tickFailure(new SuccessrateSensor.AlertInfo("key2", "description")));
         List<Measurement> measurements = sensor.measure();
         assertThat(measurements.size(), is(2));
 
@@ -109,4 +109,14 @@ public class SuccessrateSensorTest {
         assertThat(key2.get().displayValue, is("Last 100 calls: 98 success, 2 failure (2.00% failure)"));
     }
 
+    @Test
+    public void should_display_description_when_present() {
+        SuccessrateSensor sensor = new SuccessrateSensor(100, 0.1, 0.2);
+        IntStream.range(0, 50).forEach(i -> sensor.tickSuccess(new SuccessrateSensor.AlertInfo("key1", "description")));
+        IntStream.range(0, 50).forEach(i -> sensor.tickFailure(new SuccessrateSensor.AlertInfo("key1", "description")));
+        List<Measurement> measurements = sensor.measure();
+
+        Optional<Measurement> key1 = measurements.stream().filter(m -> m.key.equals("key1")).findAny();
+        assertThat(key1.get().description, is("description"));
+    }
 }

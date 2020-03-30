@@ -11,11 +11,12 @@ panopticon is a monitoring system for all your applications that is dead simple 
 
 ## Configure AWS
 
-Install `aws` and `eb` command line tools:
+Install `aws`, `eb` and `ansible` command line tools:
 
 ```
 brew install aws
 brew install eb
+brew install ansible
 ```
 
 Configure a AWS profile for panopticon:

@@ -34,7 +34,7 @@ if [ ! -f ${secret_properties_file} ]; then
     exit 1
 fi
 
-cp ~/.m2/repository/no/panopticon/panopticon-server/${version}/panopticon-server-${version}.jar ./app.jar
+cp ~/.m2/repository/no/nsb/panopticon-server/${version}/panopticon-server-${version}.jar ./app.jar
 
 echo "> Packaging app"
 zip -r app.zip app.jar .ebextensions Procfile ${secret_properties_file}

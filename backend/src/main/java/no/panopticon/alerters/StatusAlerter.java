@@ -113,7 +113,7 @@ public class StatusAlerter {
     }
 
     private String createMeasurementDescription(Map.Entry<String, List<ThingToAlertAbout>> m) {
-        return m.getValue().stream().findFirst().map(a -> a.measurement.getDescription() + "\n").orElse("");
+        return m.getValue().stream().findFirst().map(a -> StringUtils.isNotEmpty(a.measurement.getDescription()) ? a.measurement.getDescription() + "\n" : "").orElse("");
     }
 
     private String createMeasurementDetails(Map.Entry<String, List<ThingToAlertAbout>> m) {

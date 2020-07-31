@@ -1,7 +1,6 @@
 package no.panopticon.integrations.pagerduty;
 
 import no.panopticon.config.PagerdutyConfiguration;
-import no.panopticon.integrations.pagerduty.PagerdutyClient;
 import no.panopticon.storage.RunningUnit;
 import no.panopticon.storage.StatusSnapshot;
 import org.junit.Before;
@@ -9,7 +8,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 @Ignore
-public class PagerdutyClientManualTest {
+public class PagerdutyClientV1ManualTest {
 
     private static final RunningUnit RUNNING_UNIT = new RunningUnit("prod", "mobile apps", "MTL", "linuxserver107");
 
@@ -19,7 +18,7 @@ public class PagerdutyClientManualTest {
     public void setup() {
         PagerdutyConfiguration config = new PagerdutyConfiguration();
         config.setApikey("SECRET");
-        client = new PagerdutyClient(config);
+        client = new PagerdutyClientV1(config);
     }
 
     @Test

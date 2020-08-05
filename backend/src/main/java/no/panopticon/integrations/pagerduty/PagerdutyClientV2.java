@@ -132,7 +132,7 @@ public class PagerdutyClientV2 implements PagerdutyClient {
         JSONObject details = createCustomDetails(runningUnit, measurement);
 
         return Payload.Builder.newBuilder()
-                .setSummary(String.format("The measurement '%s' is in status %s", measurement.getKey(), measurement.getStatus()))
+                .setSummary(String.format("'%s' is in status %s", measurement.getKey(), measurement.getStatus()))
                 .setSource(runningUnit.getServer())
                 .setSeverity(Severity.CRITICAL)
                 .setComponent(runningUnit.getComponent())
@@ -164,7 +164,7 @@ public class PagerdutyClientV2 implements PagerdutyClient {
         return String.format("[%s] %s", c.getEnvironment().toUpperCase(), c.getComponent());
     }
 
-    private boolean shouldAlert(String environment) {
+    public boolean shouldAlert(String environment) {
         if (configuration.environmentAlertWhitelist == null || environment == null) {
             return false;
         } else {

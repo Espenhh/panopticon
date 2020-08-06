@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "pagerduty")
 public class PagerdutyConfiguration {
 
+    public String integrationKey;
     public String apikey;
     public String environmentAlertWhitelist;
 
@@ -16,5 +17,9 @@ public class PagerdutyConfiguration {
 
     public void setEnvironmentAlertWhitelist(String environmentAlertWhitelist) {
         this.environmentAlertWhitelist = environmentAlertWhitelist;
+    }
+
+    public void setIntegrationKey(String integrationKey) {
+        this.integrationKey = integrationKey;
     }
 }

@@ -52,13 +52,13 @@ public class PagerdutyClientTest {
 
     private class PagerdutyClientTestHelper {
 
-        private PagerdutyClient client;
+        private PagerdutyClientV2 client;
 
         PagerdutyClientTestHelper with_environment_alert_whitelist(String whitelist) {
             PagerdutyConfiguration config = new PagerdutyConfiguration();
             config.environmentAlertWhitelist = whitelist;
             config.apikey = "APIKEY";
-            client = new PagerdutyClient(config);
+            client = new PagerdutyClientV2(config);
             return this;
         }
 

@@ -10,7 +10,6 @@ import pro.panopticon.client.sensor.Sensor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
 
@@ -27,7 +26,7 @@ public class SuccessrateSensor implements Sensor {
      * Triggers an alert to Slack when reached.
      * Should always be a Double between 0.00 and 1.00
      * Format: percentage / 100
-     *
+     * <p>
      * Example: 0.1 will trigger a warning at 10% failure rate
      */
     private final Double warnLimit;
@@ -36,7 +35,7 @@ public class SuccessrateSensor implements Sensor {
      * Triggers an alert to Slack and PagerDuty when reached.
      * Should always be a Double between 0.00 and 1.00
      * Format: percentage / 100
-     *
+     * <p>
      * Example: 0.2 will trigger an alert at 20% failure rate
      */
     private final Double errorLimit;
@@ -93,11 +92,11 @@ public class SuccessrateSensor implements Sensor {
                     String display = String.format("Last %s calls: %s success, %s failure (%.2f%% failure)%s",
                             Integer.min(all, numberToKeep),
                             success,
-                            all-success,
+                            all - success,
                             percentFailureDouble * 100,
                             enoughDataToAlert ? "" : " - not enough calls to report status yet"
                     );
-                    return new Measurement(alertInfo.getSensorKey(), getStatusFromPercentage(enoughDataToAlert, percentFailureDouble), display, new Measurement.CloudwatchValue(percentFailureDouble * 100, StandardUnit.Percent), alertInfo.description);
+                    return new Measurement(alertInfo.getSensorKey(), getStatusFromPercentage(enoughDataToAlert, percentFailureDouble), display, new Measurement.CloudwatchValue(percentFailureDouble * 100, StandardUnit.Percent), alertInfo.getDescription());
                 })
                 .collect(toList());
     }
@@ -114,56 +113,4 @@ public class SuccessrateSensor implements Sensor {
         FAILURE
     }
 
-    public static class AlertInfo {
-
-        /**
-         * Key used to separate alerts from each other.
-         * Example:
-         * "entur.rest.calls"
-         */
-        private final String sensorKey;
-
-        /**
-         * A human / guard-friendly description of what is happening and which actions that needs to be taken.
-         *
-         * Example:
-         * "When this alert is triggered, the critical Feature X is not working properly. You should contact Company Y."
-         */
-        private final String description;
-
-        public AlertInfo(String sensorKey, String description) {
-            this.sensorKey = sensorKey;
-            this.description = description;
-        }
-
-        public String getSensorKey() {
-            return sensorKey;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            AlertInfo alertInfo = (AlertInfo) o;
-            return Objects.equals(sensorKey, alertInfo.sensorKey) &&
-                    Objects.equals(description, alertInfo.description);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(sensorKey, description);
-        }
-
-        @Override
-        public String toString() {
-            return "AlertInfo{" +
-                    "sensorKey='" + sensorKey + '\'' +
-                    ", description='" + description + '\'' +
-                    '}';
-        }
-    }
 }

@@ -4,7 +4,7 @@
 
     <groupId>no.nsb</groupId>
     <artifactId>panopticon-client</artifactId>
-    <version>0.9.2-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>panopticon-client</name>
@@ -130,7 +130,7 @@
 
     <scm>
         <developerConnection>scm:git:git@github.com:nsbno/panopticon.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>client-1.0.0</tag>
     </scm>
 
 </project>

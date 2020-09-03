@@ -1,9 +1,10 @@
 package pro.panopticon.client.sensor.impl;
 
-import org.hamcrest.core.StringContains;
 import org.junit.Test;
 import pro.panopticon.client.model.Measurement;
+import pro.panopticon.client.util.NowSupplier;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -11,6 +12,7 @@ import java.util.stream.IntStream;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
+import static pro.panopticon.client.sensor.impl.SuccessrateSensor.HOURS_FOR_ERROR_TICK_TO_BE_CONSIDERED_OUTDATED;
 
 public class SuccessrateSensorTest {
 
@@ -121,5 +123,36 @@ public class SuccessrateSensorTest {
 
         Optional<Measurement> key1 = measurements.stream().filter(m -> m.key.equals("key1")).findAny();
         assertThat(key1.get().description, is("description"));
+    }
+
+    @Test
+    public void should_ignore_errors_if_all_ticks_are_outdated() {
+        NowSupplierMock nowSupplier = new NowSupplierMock();
+        SuccessrateSensor sensor = new SuccessrateSensor(100, 0.1, 0.2, nowSupplier);
+
+        nowSupplier.mockThePast = true;
+        IntStream.range(0, 50).forEach(i -> sensor.tickFailure(new SuccessrateSensor.AlertInfo("key1", "description")));
+
+        nowSupplier.mockThePast = false;
+        IntStream.range(0, 50).forEach(i -> sensor.tickSuccess(new SuccessrateSensor.AlertInfo("key1", "description")));
+        
+        List<Measurement> measurements = sensor.measure();
+
+        Optional<Measurement> key1 = measurements.stream().filter(m -> m.key.equals("key1")).findAny();
+        assertThat(key1.get().status, is("INFO"));
+    }
+
+
+    class NowSupplierMock implements NowSupplier {
+        boolean mockThePast = false;
+
+        @Override
+        public LocalDateTime now() {
+            if (mockThePast) {
+                return LocalDateTime.now().minusHours(HOURS_FOR_ERROR_TICK_TO_BE_CONSIDERED_OUTDATED + 4);
+            } else {
+                return LocalDateTime.now();
+            }
+        }
     }
 }

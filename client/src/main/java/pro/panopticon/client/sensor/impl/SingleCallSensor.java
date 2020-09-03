@@ -52,7 +52,7 @@ public class SingleCallSensor implements Sensor {
         if (status == Status.ERROR) {
             return "In error";
         }
-        return "";
+        return "Status: OK";
     }
 
     private enum Status {

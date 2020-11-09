@@ -11,9 +11,12 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pro.panopticon.client.model.MetricDimension;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -79,6 +82,7 @@ public class CloudwatchClient {
         private Double value;
         private StandardUnit unit;
         private Date date;
+        private List<MetricDimension> dimensions = new ArrayList<>();
 
         public CloudwatchStatistic(String key, Double value, StandardUnit unit, java.util.Date date) {
             this.key = key;
@@ -95,13 +99,28 @@ public class CloudwatchClient {
             this(key, value, StandardUnit.Count, new Date());
         }
 
+        public CloudwatchStatistic withDimensions(List<MetricDimension> dimensions) {
+            this.dimensions = dimensions;
+            return this;
+        }
+
         public MetricDatum toMetricsDatum() {
             MetricDatum metricDatum = new MetricDatum();
             metricDatum.setMetricName(key);
             metricDatum.setTimestamp(date);
             metricDatum.setUnit(unit);
             metricDatum.setValue(value);
+            metricDatum.setDimensions(mapToAwsDimension());
             return metricDatum;
+        }
+
+        private List<com.amazonaws.services.cloudwatch.model.Dimension> mapToAwsDimension() {
+            return dimensions.stream().map(dimension -> {
+                com.amazonaws.services.cloudwatch.model.Dimension awsDimension = new com.amazonaws.services.cloudwatch.model.Dimension();
+                awsDimension.setName(dimension.name);
+                awsDimension.setValue(dimension.value);
+                return awsDimension;
+            }).collect(Collectors.toList());
         }
     }
 }

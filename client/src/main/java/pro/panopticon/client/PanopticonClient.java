@@ -125,7 +125,7 @@ public class PanopticonClient {
     private void sendSelectMeasurementsToCloudwatch(List<Measurement> measurements) {
         List<CloudwatchClient.CloudwatchStatistic> statistics = measurements.stream()
                 .filter(m -> m.cloudwatchValue != null)
-                .map(m -> new CloudwatchClient.CloudwatchStatistic(m.key, m.cloudwatchValue.value, m.cloudwatchValue.unit))
+                .map(m -> new CloudwatchClient.CloudwatchStatistic(m.key, m.cloudwatchValue.value, m.cloudwatchValue.unit).withDimensions(m.cloudwatchValue.dimensions))
                 .collect(toList());
         if (cloudwatchClient != null && hasCloudwatchConfig != null && hasCloudwatchConfig.sensorStatisticsEnabled()) {
             cloudwatchClient.sendStatistics(namespace, statistics);

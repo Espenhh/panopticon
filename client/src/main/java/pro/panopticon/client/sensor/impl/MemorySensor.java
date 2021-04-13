@@ -2,11 +2,11 @@ package pro.panopticon.client.sensor.impl;
 
 import com.amazonaws.services.cloudwatch.model.StandardUnit;
 import pro.panopticon.client.model.Measurement;
+import pro.panopticon.client.model.MetricDimension;
 import pro.panopticon.client.sensor.Sensor;
 import pro.panopticon.client.util.SystemStatus;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class MemorySensor implements Sensor {
     private static final String DESCRIPTION = "When this alarm is triggered, you should check the memory status of the other nodes as well. " +
@@ -17,16 +17,22 @@ public class MemorySensor implements Sensor {
     private final int errorLimitNow;
     private final int warnLimitHeap;
     private final int errorLimitHeap;
+    private final Optional<String> hostname;
 
     public MemorySensor() {
         this(85, 95, 75, 95);
     }
 
     public MemorySensor(int warnLimitNow, int errorLimitNow, int warnLimitHeap, int errorLimitHeap) {
+        this(warnLimitNow, errorLimitNow, warnLimitHeap, errorLimitHeap, null);
+    }
+
+    public MemorySensor(int warnLimitNow, int errorLimitNow, int warnLimitHeap, int errorLimitHeap, String hostname) {
         this.warnLimitNow = warnLimitNow;
         this.errorLimitNow = errorLimitNow;
         this.warnLimitHeap = warnLimitHeap;
         this.errorLimitHeap = errorLimitHeap;
+        this.hostname = Optional.ofNullable(hostname);
     }
 
     @Override
@@ -50,7 +56,21 @@ public class MemorySensor implements Sensor {
 
         String displayValue = toMB(used) + " of " + toMB(max) + " MB (" + percentUsed + "%)";
 
-        measurements.add(new Measurement(key, status(percentUsed, warnLimit, errorLimit), displayValue, new Measurement.CloudwatchValue(percentUsed, StandardUnit.Percent), DESCRIPTION));
+        List<MetricDimension> dimensions = hostname
+                .map(h -> Collections.singletonList(MetricDimension.hostDimension(h)))
+                .orElse(Collections.emptyList());
+
+        measurements.add(
+                new Measurement(
+                        key,
+                        status(percentUsed, warnLimit, errorLimit),
+                        displayValue,
+                        new Measurement.CloudwatchValue(
+                                percentUsed,
+                                StandardUnit.Percent,
+                                dimensions
+                                ),
+                        DESCRIPTION));
     }
 
     private String status(long percentUsed, int warnLimit, int errorLimit) {

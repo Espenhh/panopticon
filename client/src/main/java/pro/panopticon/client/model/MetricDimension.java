@@ -5,7 +5,7 @@ public class MetricDimension {
     public final String value;
 
     private static final String PLATFORM_DIMENSION_NAME = "Platform";
-    private static final String HOST_DIMENSION_NAME = "Platform";
+    private static final String INSTANCE_DIMENSION_NAME = "Instance";
 
     private MetricDimension(String name, String value) {
         this.name = name;
@@ -16,8 +16,8 @@ public class MetricDimension {
         return new MetricDimension(PLATFORM_DIMENSION_NAME, value);
     }
 
-    public static MetricDimension hostDimension(String value) {
-        return new MetricDimension(HOST_DIMENSION_NAME, value);
+    public static MetricDimension instanceDimension(String value) {
+        return new MetricDimension(INSTANCE_DIMENSION_NAME, value);
     }
 
     public static MetricDimension customDimension(String key, String value) {

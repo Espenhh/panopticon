@@ -57,7 +57,7 @@ public class MemorySensor implements Sensor {
         String displayValue = toMB(used) + " of " + toMB(max) + " MB (" + percentUsed + "%)";
 
         List<MetricDimension> dimensions = hostname
-                .map(h -> Collections.singletonList(MetricDimension.hostDimension(h)))
+                .map(h -> Collections.singletonList(MetricDimension.instanceDimension(h)))
                 .orElse(Collections.emptyList());
 
         measurements.add(

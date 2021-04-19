@@ -29,6 +29,7 @@
     "tmpl-cli": "^0.1.2"
   },
   "dependencies": {
+    "elm": "^0.18.0",
     "simple-line-icons": "^2.4.1"
   }
 }

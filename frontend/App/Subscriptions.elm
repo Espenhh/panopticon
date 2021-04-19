@@ -1,11 +1,11 @@
 module App.Subscriptions exposing (subscriptions)
 
-import App.Model exposing (..)
 import App.Messages exposing (..)
-import Nav.Model exposing (Page(..))
+import App.Model exposing (..)
 import Detail.Subscriptions
+import Nav.Model exposing (Page(..))
+import Ports
 import Time exposing (second)
-import Auth exposing (loginResult)
 
 
 subscriptions : Model -> Sub Msg
@@ -16,17 +16,17 @@ subscriptions model =
 
         subs =
             [ refreshSub
-            , loginResult LoginResult
+            , Ports.loginResult LoginResult
             ]
     in
-        case model.page of
-            Component _ _ _ _ ->
-                let
-                    detailSub =
-                        Sub.map DetailMsg <|
-                            Detail.Subscriptions.subscriptions model.detail model.appState.url
-                in
-                    Sub.batch <| detailSub :: subs
+    case model.page of
+        Component _ _ _ _ ->
+            let
+                detailSub =
+                    Sub.map DetailMsg <|
+                        Detail.Subscriptions.subscriptions model.detail model.appState.url
+            in
+            Sub.batch <| detailSub :: subs
 
-            _ ->
-                Sub.batch subs
+        _ ->
+            Sub.batch subs

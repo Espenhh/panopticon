@@ -1,8 +1,9 @@
 module Detail.Update exposing (update)
 
-import Detail.Model exposing (..)
 import Detail.Messages exposing (..)
+import Detail.Model exposing (..)
 import Nav.Requests exposing (getDetails)
+import Ports
 
 
 update : Maybe String -> Msg -> Model -> ( Model, Cmd Msg )
@@ -16,10 +17,12 @@ update token msg model =
                 request =
                     getDetails baseUrl token model.environment model.system model.component model.server
             in
-                ( model, request )
+            ( model, request )
 
-        Get (Err _) ->
-            ( model, Cmd.none )
+        Get (Err err) ->
+            ( model
+            , Ports.log ("Klarte ikke å dekode detaljer-kallet: " ++ toString err)
+            )
 
         Get (Ok metrics) ->
             ( metrics, Cmd.none )

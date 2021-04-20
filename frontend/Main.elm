@@ -1,16 +1,16 @@
 module Main exposing (..)
 
-import Navigation
-import App.Subscriptions exposing (subscriptions)
 import App.Messages exposing (..)
 import App.Model exposing (..)
+import App.Subscriptions exposing (subscriptions)
 import App.Update exposing (update)
 import App.View exposing (view)
 import Components.Model
 import Detail.Model
-import Nav.Nav exposing (hashParser, toHash)
 import Nav.Model exposing (Page)
-import Auth exposing (login)
+import Nav.Nav exposing (hashParser, toHash)
+import Navigation
+import Ports
 
 
 initModel : AppState -> Page -> Model
@@ -28,9 +28,9 @@ init flags location =
             toAppState flags
 
         initialCommand =
-            Maybe.withDefault (login ()) <| Maybe.map (\_ -> Navigation.newUrl <| toHash page) appState.token
+            Maybe.withDefault (Ports.login ()) <| Maybe.map (\_ -> Navigation.newUrl <| toHash page) appState.token
     in
-        ( initModel appState page, initialCommand )
+    ( initModel appState page, initialCommand )
 
 
 toAppState : Flags -> AppState
@@ -42,6 +42,7 @@ toMaybe : String -> Maybe String
 toMaybe s =
     if s == "" then
         Nothing
+
     else
         Just s
 

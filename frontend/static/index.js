@@ -1,4 +1,4 @@
-window.addEventListener('load', function() {
+window.addEventListener('load', function () {
 
     var app
     var tokenRenewalTimeout
@@ -32,7 +32,7 @@ window.addEventListener('load', function() {
         var delay = expiresAt - Date.now()
 
         if (delay > 0) {
-            tokenRenewalTimeout = setTimeout(function() {
+            tokenRenewalTimeout = setTimeout(function () {
                 renewToken()
             }, delay)
         }
@@ -62,13 +62,17 @@ window.addEventListener('load', function() {
             url: url
         })
 
-        app.ports.login.subscribe(function() {
+        app.ports.login.subscribe(function () {
             webAuth.authorize()
-        })
+        });
+
+        app.ports.logPort.subscribe(function (args) {
+            console.log(args);
+        });
     }
 
     function handleAuthentication() {
-        webAuth.parseHash({ hash: window.location.hash }, function(err, authResult) {
+        webAuth.parseHash({ hash: window.location.hash }, function (err, authResult) {
             if (authResult && authResult.idToken) {
                 console.log('Start with newly created token')
                 setSession(authResult)

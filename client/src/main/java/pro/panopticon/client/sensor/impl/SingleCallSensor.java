@@ -33,6 +33,10 @@ public class SingleCallSensor implements Sensor {
         measurements.compute(alertInfo, (k, v) -> Status.ERROR);
     }
 
+    public void triggerWarn(AlertInfo alertInfo) {
+        measurements.compute(alertInfo, (k, v) -> Status.WARN);
+    }
+    
     public void triggerOk(AlertInfo alertInfo) {
         measurements.compute(alertInfo, (k, v) -> Status.OK);
     }
@@ -41,6 +45,8 @@ public class SingleCallSensor implements Sensor {
         switch (status) {
             case ERROR:
                 return "ERROR";
+            case WARN:
+                return "WARN";
             case OK:
                 return "INFO";
             default:
@@ -49,13 +55,18 @@ public class SingleCallSensor implements Sensor {
     }
 
     private String getDisplayValue(Status status) {
-        if (status == Status.ERROR) {
-            return "In error";
+        switch(status) {
+            case ERROR:
+                return "In error";
+            case WARN:
+                return "Status: WARN";
+            case OK:
+            default:
+                return "Status: OK";
         }
-        return "Status: OK";
     }
 
     private enum Status {
-        OK, ERROR
+        OK, WARN, ERROR
     }
 }

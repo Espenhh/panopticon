@@ -11,8 +11,13 @@ import pro.panopticon.client.util.NowSupplierImpl;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 public class SuccessrateSensor implements Sensor {
@@ -59,6 +64,7 @@ public class SuccessrateSensor implements Sensor {
         this.errorLimit = errorLimit;
         this.nowSupplier = nowSupplier;
     }
+
     @Deprecated
     public synchronized void tickSuccess(String key) {
         tickSuccess(new AlertInfo(key, null));
@@ -77,12 +83,22 @@ public class SuccessrateSensor implements Sensor {
         }
     }
 
+    public synchronized void tickAndLogFailure(AlertInfo alertInfo, String... logAppends) {
+        tickFailure(alertInfo);
+        LOG.info("SENSOR SUCCESS RATE - [FAILURE] - [" + alertInfo.getSensorKey() + "] - [" + alertInfo.getDescription() + "] - " + Stream.of(logAppends).map(s -> "[" + s + "]").collect(joining(" - ")));
+    }
+
     public synchronized void tickSuccess(AlertInfo alertInfo) {
         try {
             getQueueForKey(alertInfo).add(new Tick(Event.SUCCESS, nowSupplier.now()));
         } catch (Exception e) {
             LOG.warn("Something went wrong when counting SUCCESS for " + alertInfo.getSensorKey(), e);
         }
+    }
+
+    public synchronized void tickAndLogSuccess(AlertInfo alertInfo, String... logAppends) {
+        tickSuccess(alertInfo);
+        LOG.info("SENSOR SUCCESS RATE - [SUCCESS] - [" + alertInfo.getSensorKey() + "] - [" + alertInfo.getDescription() + "] - " + Stream.of(logAppends).map(s -> "[" + s + "]").collect(joining(" - ")));
     }
 
     private CircularFifoQueue<Tick> getQueueForKey(AlertInfo key) {

@@ -12,7 +12,9 @@ import pro.panopticon.client.util.NowSupplierImpl;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 public class SuccessrateSensor implements Sensor {
@@ -77,9 +79,27 @@ public class SuccessrateSensor implements Sensor {
         }
     }
 
+    public synchronized  void tickAndLogFailure(AlertInfo alertInfo, String... logAppends) {
+        try {
+            getQueueForKey(alertInfo).add(new Tick(Event.FAILURE, nowSupplier.now()));
+            LOG.info("AUDIT EVENT - [FAILURE] - [" + alertInfo.getSensorKey() + "] - [" + alertInfo.getDescription() + "] - " + Stream.of(logAppends).map(s -> "[" + s + "]").collect(joining(" - ")));
+        } catch (Exception e) {
+            LOG.warn("Something went wrong when counting FAILURE for " + alertInfo.getSensorKey(), e);
+        }
+    }
+
     public synchronized void tickSuccess(AlertInfo alertInfo) {
         try {
             getQueueForKey(alertInfo).add(new Tick(Event.SUCCESS, nowSupplier.now()));
+        } catch (Exception e) {
+            LOG.warn("Something went wrong when counting SUCCESS for " + alertInfo.getSensorKey(), e);
+        }
+    }
+
+    public synchronized void tickAndLogSuccess(AlertInfo alertInfo, String... logAppends) {
+        try {
+            getQueueForKey(alertInfo).add(new Tick(Event.SUCCESS, nowSupplier.now()));
+            LOG.info("AUDIT EVENT - [SUCCESS] - [" + alertInfo.getSensorKey() + "] - [" + alertInfo.getDescription() + "] - " + Stream.of(logAppends).map(s -> "[" + s + "]").collect(joining(" - ")));
         } catch (Exception e) {
             LOG.warn("Something went wrong when counting SUCCESS for " + alertInfo.getSensorKey(), e);
         }

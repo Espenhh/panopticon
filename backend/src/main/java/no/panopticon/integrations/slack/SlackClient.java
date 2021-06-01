@@ -5,6 +5,7 @@ import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory;
 import com.ullink.slack.simpleslackapi.replies.SlackMessageReply;
 import no.panopticon.alerters.MissingRunningUnitsAlerter;
 import no.panopticon.config.SlackConfiguration;
+import no.panopticon.integrations.cloudwatch.CloudWatchUrlUtils;
 import no.panopticon.storage.RunningUnit;
 import no.panopticon.storage.StatusSnapshot;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -92,15 +94,30 @@ public class SlackClient {
 
         SlackChannel channel = slack.findChannelByName(slackConfiguration.channel);
 
-        String heading = String.format("*%d målepunkter med feil akkurat nå. Se detaljert hendelseslogg i #%s*", alertLines.size(), slackConfiguration.channelDetailed);
+        String heading = String.format(
+                "*%d %s med feil akkurat nå. Se detaljert hendelseslogg i #%s*",
+                alertLines.size(),
+                alertLines.size() == 1 ? "målepunkt" : "målepunkter",
+                slackConfiguration.channelDetailed
+        );
 
         List<SlackAttachment> attachments = alertLines.stream().map(l -> {
-            SlackAttachment a = new SlackAttachment(l.header, null, l.message, null);
+            SlackAttachment a = new SlackAttachment(
+                    l.header,
+                    null,
+                    String.format(
+                            "%s\n\n<%s|Se logger i CloudWatch>",
+                            l.message,
+                            CloudWatchUrlUtils.getCloudWatchUrl(l.component, l.alertKey)
+                    ),
+                    null
+            );
             if (l.severity.equals("ERROR")) {
                 a.setColor(RED);
             } else if (l.severity.equals("WARN")) {
                 a.setColor(YELLOW);
             }
+            a.addMarkdownIn("text");
             return a;
         }).collect(toList());
 
@@ -144,11 +161,15 @@ public class SlackClient {
         private final String severity;
         private final String header;
         private final String message;
+        private final String component;
+        private final String alertKey;
 
-        public Line(String severity, String header, String message) {
+        public Line(String severity, String header, String message, String component, String alertKey) {
             this.severity = severity;
             this.header = header;
             this.message = message;
+            this.component = component;
+            this.alertKey = alertKey;
         }
 
         @Override

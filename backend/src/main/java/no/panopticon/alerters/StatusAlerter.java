@@ -83,7 +83,9 @@ public class StatusAlerter {
                 toAlert.add(new SlackClient.Line(
                         highestSeverity,
                         createHeader(m),
-                        createMessage(m)
+                        createMessage(m),
+                        m.getKey(),
+                        m.getValue().isEmpty() ? null : m.getValue().get(0).runningUnit.getComponent()
                 ));
             }
         });

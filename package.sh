@@ -21,13 +21,12 @@ env=${1}
 version=${2}
 
 vault_file=$(mktemp)
-pass "panopticon/aws/${env}/vault_password" >> ${vault_file}
+vy pass show "/vy/panopticon/${env}/vault_password" >> ${vault_file}
 secret_properties_file="application-${env}.properties"
 
 trap "{ rm -f app.jar ${secret_properties_file} ${vault_file} ; exit 255; }" EXIT
 
 echo "> Assembling files"
-sh -c "sleep 5; rm -f ${vault_file}" &
 ansible-vault decrypt "secretconfig/application-${env}.properties.encrypted" --vault-password-file ${vault_file} --output=${secret_properties_file}
 if [ ! -f ${secret_properties_file} ]; then
     echo "Something went wrong with decrypting secret properties. File ${secret_properties_file} is missing. Can't deploy..."
@@ -38,5 +37,5 @@ cp ~/.m2/repository/no/nsb/panopticon-server/${version}/panopticon-server-${vers
 
 echo "> Packaging app"
 zip -r app.zip app.jar .ebextensions Procfile ${secret_properties_file}
-rm -f app.jar ${secret_properties_file}
+rm -f app.jar ${secret_properties_file} ${vault_file}
 

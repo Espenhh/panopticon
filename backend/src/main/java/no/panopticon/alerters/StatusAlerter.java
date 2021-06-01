@@ -84,8 +84,9 @@ public class StatusAlerter {
                         highestSeverity,
                         createHeader(m),
                         createMessage(m),
-                        m.getKey(),
-                        m.getValue().isEmpty() ? null : m.getValue().get(0).runningUnit.getComponent()
+                        m.getValue().isEmpty() ? null : m.getValue().get(0).runningUnit.getComponent(),
+                        m.getValue().isEmpty() ? null : m.getValue().get(0).measurement.key
+
                 ));
             }
         });

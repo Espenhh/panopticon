@@ -102,14 +102,20 @@ public class SlackClient {
         );
 
         List<SlackAttachment> attachments = alertLines.stream().map(l -> {
+            String message;
+            if (l.component != null && l.alertKey != null) {
+                message = String.format(
+                        "%s\n\n<%s|Se logger i CloudWatch>",
+                        l.message,
+                        CloudWatchUrlUtils.getCloudWatchUrl(l.component, l.alertKey)
+                );
+            } else {
+                message = l.message;
+            }
             SlackAttachment a = new SlackAttachment(
                     l.header,
                     null,
-                    String.format(
-                            "%s\n\n<%s|Se logger i CloudWatch>",
-                            l.message,
-                            CloudWatchUrlUtils.getCloudWatchUrl(l.component, l.alertKey)
-                    ),
+                    message,
                     null
             );
             if (l.severity.equals("ERROR")) {

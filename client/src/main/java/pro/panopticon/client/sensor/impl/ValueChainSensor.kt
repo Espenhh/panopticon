@@ -23,13 +23,13 @@ open class ValueChainSensor : Sensor {
             created = ZonedDateTime.now(),
             completions = emptyList()
         )
-        return ValueChainCompleter { complete(info) }
+        return ValueChainCompleter { complete(info, it) }
     }
 
-    private fun complete(info: ValueChainInfo) {
+    private fun complete(info: ValueChainInfo, completionTime: ZonedDateTime) {
         sensors.compute(info) { _, data ->
             data?.completions.orEmpty()
-                .plus(ZonedDateTime.now())
+                .plus(completionTime)
                 .takeLast(info.expectedCompletions)
                 .let {
                     SensorData(
@@ -58,11 +58,11 @@ open class ValueChainSensor : Sensor {
             }
             Status.ERROR -> {
                 val lastCompletionText = data.completions.lastOrNull()?.format(DateTimeFormatter.ISO_DATE_TIME)
-                    ?.let { "Siste registrerte fullføring: $it" }
-                    ?: "Ingen registrerte fullføringer siden oppstart."
+                                             ?.let { "Siste registrerte fullføring: $it" }
+                                         ?: "Ingen registrerte fullføringer siden oppstart."
                 val completions = data.getCompletionCountAfter(info.getEarliestCompletionTimeIncludingGracePeriod())
                 "$completions fullføringer siste ${getDurationText(info.period.plus(info.gracePeriod))}. " +
-                        "Forventet minst ${info.expectedCompletions}. $lastCompletionText"
+                "Forventet minst ${info.expectedCompletions}. $lastCompletionText"
             }
         }
 
@@ -106,8 +106,12 @@ open class ValueChainSensor : Sensor {
     }
 
     data class ValueChainCompleter(
-        val complete: () -> Unit,
-    )
+        private val completeCallback: (withTime: ZonedDateTime) -> Unit,
+    ) {
+        fun complete(withTime: ZonedDateTime = ZonedDateTime.now()) {
+            completeCallback(withTime)
+        }
+    }
 
     private data class SensorData(
         val created: ZonedDateTime,

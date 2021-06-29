@@ -8,7 +8,7 @@ import java.util.ArrayList
 class UptimeSensor : Sensor {
     override fun measure(): List<Measurement> {
         val measurements: MutableList<Measurement> = ArrayList()
-        measurements.add(Measurement("uptime.since", "INFO", STARTED.toString(), DESCRIPTION))
+        measurements.add(Measurement("uptime.since", Measurement.Status.INFO, STARTED.toString(), DESCRIPTION))
         return measurements
     }
 

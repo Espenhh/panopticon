@@ -52,11 +52,11 @@ class MemorySensor @JvmOverloads constructor(
         )
     }
 
-    private fun status(percentUsed: Long, warnLimit: Int, errorLimit: Int): String {
+    private fun status(percentUsed: Long, warnLimit: Int, errorLimit: Int): Measurement.Status {
         return when {
-            percentUsed > errorLimit -> "ERROR"
-            percentUsed > warnLimit -> "WARN"
-            else -> "INFO"
+            percentUsed > errorLimit -> Measurement.Status.ERROR
+            percentUsed > warnLimit -> Measurement.Status.WARN
+            else -> Measurement.Status.INFO
         }
     }
 

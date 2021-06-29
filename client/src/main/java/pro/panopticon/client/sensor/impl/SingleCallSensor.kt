@@ -1,6 +1,7 @@
 package pro.panopticon.client.sensor.impl
 
 import pro.panopticon.client.model.Measurement
+import pro.panopticon.client.model.Measurement.Status
 import pro.panopticon.client.sensor.Sensor
 import java.util.HashMap
 
@@ -9,10 +10,10 @@ open class SingleCallSensor : Sensor {
     override fun measure(): List<Measurement> {
         return measurements.entries.map {
             Measurement(
-                it.key.sensorKey,
-                getPanopticonStatus(it.value),
-                getDisplayValue(it.value),
-                it.key.description
+                key = it.key.sensorKey,
+                status = it.value,
+                displayValue = getDisplayValue(it.value),
+                description = it.key.description,
             )
         }
     }
@@ -26,27 +27,15 @@ open class SingleCallSensor : Sensor {
     }
 
     open fun triggerOk(alertInfo: Sensor.AlertInfo) {
-        measurements.compute(alertInfo) { _: Sensor.AlertInfo?, _: Status? -> Status.OK }
-    }
-
-    private fun getPanopticonStatus(status: Status): String {
-        return when (status) {
-            Status.ERROR -> "ERROR"
-            Status.WARN -> "WARN"
-            Status.OK -> "INFO"
-        }
+        measurements.compute(alertInfo) { _: Sensor.AlertInfo?, _: Status? -> Status.INFO }
     }
 
     private fun getDisplayValue(status: Status): String {
         return when (status) {
             Status.ERROR -> "In error"
             Status.WARN -> "Status: WARN"
-            Status.OK -> "Status: OK"
+            Status.INFO -> "Status: OK"
         }
-    }
-
-    private enum class Status {
-        OK, WARN, ERROR
     }
 
     init {

@@ -12,18 +12,18 @@ class ServerLoadSensor : Sensor {
         val load = s.load()
         val formatted = DecimalFormat("#.##").format(load)
         val status = when {
-            load > 10 -> "ERROR"
-            load > 5 -> "WARN"
-            else -> "INFO"
+            load > 10 -> Measurement.Status.ERROR
+            load > 5 -> Measurement.Status.WARN
+            else -> Measurement.Status.INFO
         }
 
         return listOf(
             Measurement(
                 key = "load.avg",
                 status = status,
-                displayValue = formatted,
                 cloudwatchValue = Measurement.CloudwatchValue(load, StandardUnit.None),
-                description = ""
+                displayValue = formatted,
+                description = "",
             )
         )
     }

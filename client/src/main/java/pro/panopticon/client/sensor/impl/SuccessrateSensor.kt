@@ -9,7 +9,7 @@ import pro.panopticon.client.util.NowSupplier
 import pro.panopticon.client.util.NowSupplierImpl
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import java.util.HashMap
+import kotlin.math.min
 
 open class SuccessrateSensor : Sensor {
     private val LOG = KotlinLogging.logger { }
@@ -38,7 +38,7 @@ open class SuccessrateSensor : Sensor {
      * Example: 0.2 will trigger an alert at 20% failure rate
      */
     private val errorLimit: Double?
-    private val eventQueues: MutableMap<Sensor.AlertInfo, CircularFifoQueue<Tick>> = HashMap()
+    private val eventQueues: MutableMap<Sensor.AlertInfo, CircularFifoQueue<Tick>> = mutableMapOf()
     private val previousErrorPercentage = mutableMapOf<Sensor.AlertInfo, Double>()
     private val nowSupplier: NowSupplier
 
@@ -107,7 +107,7 @@ open class SuccessrateSensor : Sensor {
         val enoughDataToAlert = all == numberToKeep
         val hasRecentErrorTicks = hasRecentErrorTicks(ticks)
         val display = String.format("Last %s calls: %s success, %s failure (%.2f%% failure)%s%s",
-            Integer.min(all, numberToKeep),
+            min(all, numberToKeep),
             success,
             all - success,
             percentFailureDouble * 100,
@@ -120,18 +120,27 @@ open class SuccessrateSensor : Sensor {
             }
         )
         val status = decideStatus(enoughDataToAlert, percentFailureDouble, hasRecentErrorTicks)
-        return Measurement(alertInfo.sensorKey,
-            status,
-            display,
-            Measurement.CloudwatchValue(percentFailureDouble * 100, StandardUnit.Percent),
-            alertInfo.description)
+        return Measurement(
+            key = alertInfo.sensorKey,
+            status = status,
+            cloudwatchValue = Measurement.CloudwatchValue(percentFailureDouble * 100, StandardUnit.Percent),
+            displayValue = display,
+            description = alertInfo.description,
+        )
     }
 
-    private fun decideStatus(enoughDataToAlert: Boolean, percentFailure: Double, hasRecentErrorTicks: Boolean): String {
-        if (!enoughDataToAlert) return "INFO"
-        if (!hasRecentErrorTicks) return "INFO"
-        if (errorLimit != null && percentFailure >= errorLimit) return "ERROR"
-        return if (warnLimit != null && percentFailure >= warnLimit) "WARN" else "INFO"
+    private fun decideStatus(
+        enoughDataToAlert: Boolean,
+        percentFailure: Double,
+        hasRecentErrorTicks: Boolean,
+    ): Measurement.Status {
+        return when {
+            !enoughDataToAlert -> Measurement.Status.INFO
+            !hasRecentErrorTicks -> Measurement.Status.INFO
+            (errorLimit != null && percentFailure >= errorLimit) -> Measurement.Status.ERROR
+            (warnLimit != null && percentFailure >= warnLimit) -> Measurement.Status.WARN
+            else -> Measurement.Status.INFO
+        }
     }
 
     private fun hasRecentErrorTicks(ticks: CircularFifoQueue<Tick>): Boolean {

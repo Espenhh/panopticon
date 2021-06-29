@@ -9,7 +9,7 @@ class ReportTimeSensor : Sensor {
         return listOf(
             Measurement(
                 key = "report.generated",
-                status = "INFO",
+                status = Measurement.Status.INFO,
                 displayValue = LocalDateTime.now().toString(),
                 description = "",
             )

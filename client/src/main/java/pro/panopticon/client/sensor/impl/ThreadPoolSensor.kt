@@ -27,11 +27,11 @@ class ThreadPoolSensor : Sensor {
 
     private fun createMeasurement(key: String, value: Number): Measurement {
         return Measurement(
-            key,
-            "INFO",
-            value.toString(),
-            Measurement.CloudwatchValue(value.toDouble(), StandardUnit.Count),
-            ""
+            key = key,
+            status = Measurement.Status.INFO,
+            displayValue = value.toString(),
+            cloudwatchValue = Measurement.CloudwatchValue(value.toDouble(), StandardUnit.Count),
+            description = ""
         )
     }
 }

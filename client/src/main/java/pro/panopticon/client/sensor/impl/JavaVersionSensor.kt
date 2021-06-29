@@ -10,9 +10,9 @@ class JavaVersionSensor : Sensor {
         return listOf(
             Measurement(
                 key = "java.version",
-                status = "INFO",
+                status = Measurement.Status.INFO,
                 displayValue = version,
-                description = ""
+                description = "",
             )
         )
     }

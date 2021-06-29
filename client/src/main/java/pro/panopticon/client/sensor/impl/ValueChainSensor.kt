@@ -1,6 +1,7 @@
 package pro.panopticon.client.sensor.impl
 
 import pro.panopticon.client.model.Measurement
+import pro.panopticon.client.model.Measurement.Status
 import pro.panopticon.client.sensor.Sensor
 import java.time.Duration
 import java.time.ZonedDateTime
@@ -68,7 +69,7 @@ open class ValueChainSensor : Sensor {
 
         return Measurement(
             key = info.key,
-            status = status.name,
+            status = status,
             displayValue = displayValue,
             description = info.description,
         )
@@ -97,12 +98,6 @@ open class ValueChainSensor : Sensor {
             data.completions.all { it.isAfter(info.getEarliestCompletionTimeIncludingGracePeriod()) } -> Status.WARN
             else -> Status.ERROR
         }
-    }
-
-    enum class Status {
-        INFO,
-        WARN,
-        ERROR
     }
 
     data class ValueChainCompleter(

@@ -24,11 +24,11 @@ class FileHandlesSensor(private val warnAfter: Long, private val errorAfter: Lon
         )
     }
 
-    private fun statusFromOpenFileHandles(open: Long): String {
+    private fun statusFromOpenFileHandles(open: Long): Measurement.Status {
         return when {
-            open >= errorAfter -> "ERROR"
-            open >= warnAfter -> "WARN"
-            else -> "INFO"
+            open >= errorAfter -> Measurement.Status.ERROR
+            open >= warnAfter -> Measurement.Status.WARN
+            else -> Measurement.Status.INFO
         }
     }
 }

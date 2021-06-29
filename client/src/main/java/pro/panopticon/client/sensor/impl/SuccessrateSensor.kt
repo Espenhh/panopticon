@@ -9,7 +9,6 @@ import pro.panopticon.client.util.NowSupplier
 import pro.panopticon.client.util.NowSupplierImpl
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import java.util.ArrayList
 import java.util.HashMap
 
 open class SuccessrateSensor : Sensor {
@@ -40,6 +39,7 @@ open class SuccessrateSensor : Sensor {
      */
     private val errorLimit: Double?
     private val eventQueues: MutableMap<Sensor.AlertInfo, CircularFifoQueue<Tick>> = HashMap()
+    private val previousErrorPercentage = mutableMapOf<Sensor.AlertInfo, Double>()
     private val nowSupplier: NowSupplier
 
     constructor(numberToKeep: Int, warnLimit: Double?, errorLimit: Double?) {
@@ -94,18 +94,16 @@ open class SuccessrateSensor : Sensor {
 
     override fun measure(): List<Measurement> {
         return eventQueues.entries
-            .map { this.measure(it) }
+            .map { this.measure(it.key, it.value) }
     }
 
-    private fun measure(entry: Map.Entry<Sensor.AlertInfo, CircularFifoQueue<Tick>>): Measurement {
-        val alertInfo = entry.key
-        val ticks: List<Tick> = ArrayList(entry.value)
+    private fun measure(alertInfo: Sensor.AlertInfo, ticks: CircularFifoQueue<Tick>): Measurement {
         val all = ticks.size
-        val success = ticks.stream().filter { tick: Tick -> tick.event == Event.SUCCESS }
-            .count()
-        val failure = ticks.stream().filter { tick: Tick -> tick.event == Event.FAILURE }
-            .count()
-        val percentFailureDouble: Double = if (all > 0) failure.toDouble() / all.toDouble() else 0.0
+        val success = ticks.count { tick: Tick -> tick.event == Event.SUCCESS }
+        val failure = ticks.count { tick: Tick -> tick.event == Event.FAILURE }
+        val previousFailureDouble = previousErrorPercentage[alertInfo] ?: 0.0
+        val percentFailureDouble: Double = (if (all > 0) failure.toDouble() / all.toDouble() else 0.0)
+            .also { previousErrorPercentage[alertInfo] = it }
         val enoughDataToAlert = all == numberToKeep
         val hasRecentErrorTicks = hasRecentErrorTicks(ticks)
         val display = String.format("Last %s calls: %s success, %s failure (%.2f%% failure)%s%s",
@@ -114,7 +112,12 @@ open class SuccessrateSensor : Sensor {
             all - success,
             percentFailureDouble * 100,
             if (enoughDataToAlert) "" else " - not enough calls to report status yet",
-            if (hasRecentErrorTicks) "" else " - no recent error ticks"
+            if (hasRecentErrorTicks) "" else " - no recent error ticks",
+            when {
+                previousFailureDouble == percentFailureDouble -> ""
+                previousFailureDouble < percentFailureDouble -> " :chart_with_upwards_trend:"
+                else -> " :chart_with_downwards_trend:"
+            }
         )
         val status = decideStatus(enoughDataToAlert, percentFailureDouble, hasRecentErrorTicks)
         return Measurement(alertInfo.sensorKey,
@@ -131,10 +134,10 @@ open class SuccessrateSensor : Sensor {
         return if (warnLimit != null && percentFailure >= warnLimit) "WARN" else "INFO"
     }
 
-    private fun hasRecentErrorTicks(events: List<Tick>): Boolean {
-        return events.stream()
+    private fun hasRecentErrorTicks(ticks: CircularFifoQueue<Tick>): Boolean {
+        return ticks
             .filter { tick: Tick -> tick.event == Event.FAILURE }
-            .anyMatch { tick: Tick ->
+            .any { tick: Tick ->
                 ChronoUnit.HOURS.between(tick.createdAt,
                     nowSupplier.now()) < HOURS_FOR_ERROR_TICK_TO_BE_CONSIDERED_OUTDATED
             }

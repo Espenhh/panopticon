@@ -94,7 +94,7 @@ public class SlackClient {
                 "*%d %s med feil akkurat nå. Se detaljert hendelseslogg i #%s*",
                 alertLines.size(),
                 alertLines.size() == 1 ? "målepunkt" : "målepunkter",
-                slackConfiguration.channelDetailed
+                slackConfiguration.channelDetailedName
         );
 
         List<Attachment> attachments = alertLines.stream().map(l -> {

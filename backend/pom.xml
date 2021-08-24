@@ -35,9 +35,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.ullink.slack</groupId>
-            <artifactId>simpleslackapi</artifactId>
-            <version>1.2.0</version>
+            <groupId>com.slack.api</groupId>
+            <artifactId>slack-api-client</artifactId>
+            <version>1.9.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.dikhan</groupId>

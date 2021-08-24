@@ -1,8 +1,11 @@
 package no.panopticon.integrations.slack;
 
-import com.ullink.slack.simpleslackapi.*;
-import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory;
-import com.ullink.slack.simpleslackapi.replies.SlackMessageReply;
+import com.slack.api.Slack;
+import com.slack.api.methods.SlackApiException;
+import com.slack.api.methods.request.chat.ChatDeleteRequest;
+import com.slack.api.methods.request.chat.ChatPostMessageRequest;
+import com.slack.api.methods.response.chat.ChatPostMessageResponse;
+import com.slack.api.model.Attachment;
 import no.panopticon.alerters.MissingRunningUnitsAlerter;
 import no.panopticon.config.SlackConfiguration;
 import no.panopticon.integrations.cloudwatch.CloudWatchUrlUtils;
@@ -15,9 +18,11 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
 @Service
@@ -29,26 +34,15 @@ public class SlackClient {
     public static final String YELLOW = "#F8E71C";
     public static final String GREEN = "#69CA14";
 
-    private final SlackSession slack;
+    private final Slack slack;
     private final SlackConfiguration slackConfiguration;
     private String previousCombinedStatusAlertMessageTimestamp;
     private List<Line> previousCombinedAlerts = new ArrayList<>();
 
     @Autowired
     public SlackClient(SlackConfiguration slackConfiguration) {
-        slack = SlackSessionFactory.createWebSocketSlackSession(slackConfiguration.token);
+        slack = Slack.getInstance();
         this.slackConfiguration = slackConfiguration;
-        connectIfNessesary();
-    }
-
-    private void connectIfNessesary() {
-        if (!slack.isConnected()) {
-            try {
-                slack.connect();
-            } catch (IOException e) {
-                LOG.error("Could not connect to slack", e);
-            }
-        }
     }
 
     public void indicateMissingRunningUnit(RunningUnit runningUnit) {
@@ -67,22 +61,28 @@ public class SlackClient {
         slackMessage(slackConfiguration.channelDetailed, unit, color, message);
     }
 
-    private void slackMessage(String channelName, RunningUnit runningUnit, String color, String text) {
-        connectIfNessesary();
-
-        SlackChannel channel = slack.findChannelByName(channelName);
-
+    private void slackMessage(String channelId, RunningUnit runningUnit, String color, String text) {
         String name = String.format("[%s] %s på %s", runningUnit.getEnvironment().toUpperCase(), runningUnit.getComponent(), runningUnit.getServer());
 
-        SlackAttachment attachment = new SlackAttachment(name, "", text, null);
-        attachment.setColor(color);
-        attachment.setFooter("Se alle detaljer i Panopticon: " + slackConfiguration.panopticonurl);
-        attachment.addMarkdownIn("text, footer");
-
-        SlackPreparedMessage message = new SlackPreparedMessage.Builder()
-                .addAttachment(attachment)
+        Attachment attachment = Attachment.builder()
+                .title(name)
+                .text(text)
+                .color(color)
+                .footer("Se alle detaljer i Panopticon: " + slackConfiguration.panopticonurl)
+                .mrkdwnIn(asList("text", "footer"))
                 .build();
-        slack.sendMessage(channel, message);
+
+        ChatPostMessageRequest message = ChatPostMessageRequest.builder()
+                .channel(channelId)
+                .attachments(singletonList(attachment))
+                .build();
+
+
+        try {
+            slack.methods(slackConfiguration.token).chatPostMessage(message);
+        } catch (IOException | SlackApiException e) {
+            LOG.warn("Unable to send message to Slack.", e);
+        }
     }
 
     public synchronized void combinedStatusAlerting(List<Line> alertLines) {
@@ -90,18 +90,14 @@ public class SlackClient {
             return;
         }
 
-        connectIfNessesary();
-
-        SlackChannel channel = slack.findChannelByName(slackConfiguration.channel);
-
         String heading = String.format(
                 "*%d %s med feil akkurat nå. Se detaljert hendelseslogg i #%s*",
                 alertLines.size(),
                 alertLines.size() == 1 ? "målepunkt" : "målepunkter",
-                slackConfiguration.channelDetailed
+                slackConfiguration.channelDetailedName
         );
 
-        List<SlackAttachment> attachments = alertLines.stream().map(l -> {
+        List<Attachment> attachments = alertLines.stream().map(l -> {
             String message;
             if (l.component != null && l.alertKey != null) {
                 message = String.format(
@@ -112,54 +108,70 @@ public class SlackClient {
             } else {
                 message = l.message;
             }
-            SlackAttachment a = new SlackAttachment(
-                    l.header,
-                    null,
-                    message,
-                    null
-            );
+
+            Attachment.AttachmentBuilder attachmentBuilder = Attachment.builder()
+                    .title(l.header)
+                    .text(message)
+                    .mrkdwnIn(singletonList("text"));
+
             if (l.severity.equals("ERROR")) {
-                a.setColor(RED);
+                attachmentBuilder.color(RED);
             } else if (l.severity.equals("WARN")) {
-                a.setColor(YELLOW);
+                attachmentBuilder.color(YELLOW);
             }
-            a.addMarkdownIn("text");
-            return a;
+            return attachmentBuilder.build();
         }).collect(toList());
 
-        SlackPreparedMessage message = new SlackPreparedMessage.Builder()
-                .withMessage(heading)
-                .withLinkNames(true)
-                .withAttachments(attachments)
+        ChatPostMessageRequest request = ChatPostMessageRequest.builder()
+                .channel(slackConfiguration.channel)
+                .text(heading)
+                .linkNames(true)
+                .attachments(attachments)
                 .build();
 
         if (previousCombinedStatusAlertMessageTimestamp != null) {
-            slack.deleteMessage(previousCombinedStatusAlertMessageTimestamp, channel);
+            try {
+                slack.methods(slackConfiguration.token).chatDelete(ChatDeleteRequest.builder()
+                        .channel(slackConfiguration.channel)
+                        .ts(previousCombinedStatusAlertMessageTimestamp)
+                        .build()
+                );
+            } catch (IOException | SlackApiException e) {
+                LOG.warn("Unable to delete existing status message.", e);
+            }
         }
 
-        SlackMessageHandle<SlackMessageReply> reply = slack.sendMessage(channel, message);
-        previousCombinedStatusAlertMessageTimestamp = reply.getReply().getTimestamp();
-        previousCombinedAlerts = alertLines;
+        try {
+            ChatPostMessageResponse chatPostMessageResponse = slack.methods(slackConfiguration.token).chatPostMessage(request);
+            previousCombinedStatusAlertMessageTimestamp = chatPostMessageResponse.getTs();
+            previousCombinedAlerts = alertLines;
 
+        } catch (IOException | SlackApiException e) {
+            LOG.warn("Unable to post status message to Slack.", e);
+        }
     }
 
     public void indicateNoRunningUnits(MissingRunningUnitsAlerter.Component c) {
-        connectIfNessesary();
-
-        SlackChannel channel = slack.findChannelByName(slackConfiguration.channel);
-
         String name = String.format("[%s] %s", c.getEnvironment().toUpperCase(), c.getComponent());
 
-        String text = String.format("Ingen aktive servere for denne appen i panopticon! Sjekk om det er nede, eller om det bare er feil med målingene...");
-        SlackAttachment attachment = new SlackAttachment(name, "", text, null);
-        attachment.setColor(YELLOW);
-        attachment.setFooter("Se alle detaljer i Panopticon: " + slackConfiguration.panopticonurl);
-        attachment.addMarkdownIn("text, footer");
-
-        SlackPreparedMessage message = new SlackPreparedMessage.Builder()
-                .addAttachment(attachment)
+        Attachment attachment = Attachment.builder()
+                .title(name)
+                .text("Ingen aktive servere for denne appen i panopticon! Sjekk om det er nede, eller om det bare er feil med målingene...")
+                .color(YELLOW)
+                .footer("Se alle detaljer i Panopticon: " + slackConfiguration.panopticonurl)
+                .mrkdwnIn(asList("text", "footer"))
                 .build();
-        slack.sendMessage(channel, message);
+
+        ChatPostMessageRequest request = ChatPostMessageRequest.builder()
+                .channel(slackConfiguration.channel)
+                .attachments(singletonList(attachment))
+                .build();
+
+        try {
+            slack.methods(slackConfiguration.token).chatPostMessage(request);
+        } catch (IOException | SlackApiException e) {
+            LOG.warn("Unable to post 'no running units' message to Slack", e);
+        }
     }
 
     public static class Line {
@@ -185,9 +197,9 @@ public class SlackClient {
 
             Line line = (Line) o;
 
-            if (severity != null ? !severity.equals(line.severity) : line.severity != null) return false;
-            if (header != null ? !header.equals(line.header) : line.header != null) return false;
-            return message != null ? message.equals(line.message) : line.message == null;
+            if (!Objects.equals(severity, line.severity)) return false;
+            if (!Objects.equals(header, line.header)) return false;
+            return Objects.equals(message, line.message);
         }
 
         @Override

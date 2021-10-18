@@ -6,14 +6,17 @@ import pro.panopticon.client.sensor.Sensor
 import pro.panopticon.client.util.SystemStatus
 import java.text.DecimalFormat
 
-class ServerLoadSensor : Sensor {
+class ServerLoadSensor(
+    val warnLimit: Int = 5,
+    val errorLimit: Int = 10,
+) : Sensor {
     override fun measure(): List<Measurement> {
         val s = SystemStatus()
         val load = s.load()
         val formatted = DecimalFormat("#.##").format(load)
         val status = when {
-            load > 10 -> Measurement.Status.ERROR
-            load > 5 -> Measurement.Status.WARN
+            load > errorLimit -> Measurement.Status.ERROR
+            load > warnLimit -> Measurement.Status.WARN
             else -> Measurement.Status.INFO
         }
 

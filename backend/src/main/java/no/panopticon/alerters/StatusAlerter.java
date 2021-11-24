@@ -5,6 +5,7 @@ import no.panopticon.integrations.slack.SlackClient;
 import no.panopticon.storage.RunningUnit;
 import no.panopticon.storage.StatusSnapshot;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -21,6 +22,7 @@ public class StatusAlerter {
     private final SlackClient slackClient;
     private PagerdutyClient pagerdutyClient;
     private ConcurrentMap<Alertable, String> alertedAbout = new ConcurrentHashMap<>();
+    private ConcurrentMap<RunningUnit, StatusSnapshot> currentStatuses = null;
 
     public StatusAlerter(SlackClient slackClient, PagerdutyClient pagerdutyClient) {
         this.slackClient = slackClient;
@@ -29,7 +31,7 @@ public class StatusAlerter {
 
     public void handle(RunningUnit unit, StatusSnapshot snapshot, ConcurrentMap<RunningUnit, StatusSnapshot> currentStatuses) {
         handleSingleEventAlerting(unit, snapshot);
-        handleCombinedAlerting(currentStatuses);
+        this.currentStatuses = currentStatuses;
     }
 
     private void handleSingleEventAlerting(RunningUnit unit, StatusSnapshot snapshot) {
@@ -62,12 +64,11 @@ public class StatusAlerter {
         hasChangedAlertLevel.forEach(m -> alertedAbout.put(new Alertable(unit, m.getKey()), m.getStatus()));
     }
 
-    public void handleCombinedAlerting(Map<RunningUnit, StatusSnapshot> statuses) {
-
+    @Scheduled(fixedDelay = 10_000)
+    public void handleCombinedAlerting() {
         Map<String, List<ThingToAlertAbout>> measurements = new HashMap<>();
 
-
-        statuses.entrySet().stream()
+        currentStatuses.entrySet().stream()
                 .filter(e1 -> !e1.getValue().isOlderThan(5, MINUTES))
                 .forEach(e -> {
                     e.getValue().getMeasurements().forEach(m -> {

@@ -21,10 +21,10 @@ public class CloudWatchUrlUtils {
         put("notification", "/aws/elasticbeanstalk/vy-notification-prod/var/log/eb-docker/containers/eb-current-app/stdouterr.log");
         put("pdfTicket", "/aws/elasticbeanstalk/vy-pdf-ticket-prod/var/log/eb-docker/containers/eb-current-app/stdouterr.log");
         put("seat", "/aws/elasticbeanstalk/vy-seat-prod/var/log/eb-docker/containers/eb-current-app/stdouterr.log");
-        put("taxi", "/aws/elasticbeanstalk/vy-taxi-prod/var/log/web-1.log");
+        put("taxi", "/aws/elasticbeanstalk/vy-taxi-prod/var/log/eb-docker/containers/eb-current-app/stdouterr.log");
         put("ticket", "/aws/elasticbeanstalk/nsb-ticket-prod/var/log/eb-docker/containers/eb-current-app/stdouterr.log");
-        put("user", "/aws/elasticbeanstalk/nsb-user-prod/var/log/web-1.log");
-        put("user-data", "/aws/elasticbeanstalk/nsb-user-data-prod/var/log/web-1.log");
+        put("user", "/aws/elasticbeanstalk/vy-user-prod/var/log/eb-docker/containers/eb-current-app/stdouterr.log");
+        put("user-data", "/aws/elasticbeanstalk/vy-user-data-prod/var/log/eb-docker/containers/eb-current-app/stdouterr.log");
     }};
 
     /** Gets a custom CloudWatch URL for a given component and search string */

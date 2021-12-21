@@ -18,8 +18,9 @@ open class ValueChainSensor : Sensor {
         period: Duration = Duration.ofMinutes(10),
         gracePeriod: Duration = Duration.ofMinutes(10),
         disabledHours: DisabledHours = DisabledHours(23, 6),
+        restartGracePeriodAfterExitingDisabledHours: Boolean = false,
     ): ValueChainCompleter {
-        val info = ValueChainInfo(key, description, expectedCompletions, period, gracePeriod, disabledHours)
+        val info = ValueChainInfo(key, description, expectedCompletions, period, gracePeriod, disabledHours, restartGracePeriodAfterExitingDisabledHours)
         sensors[info] = SensorData(
             created = ZonedDateTime.now(),
             completions = emptyList()
@@ -51,7 +52,7 @@ open class ValueChainSensor : Sensor {
         val displayValue = when (status) {
             Status.INFO -> {
                 val completions = data.getCompletionCountAfter(info.getEarliestCompletionTime())
-                "Minst ${completions} fullføringer siste ${getDurationText(info.period)}"
+                "Minst $completions fullføringer siste ${getDurationText(info.period)}"
             }
             Status.WARN -> {
                 val completions = data.getCompletionCountAfter(info.getEarliestCompletionTime())
@@ -59,11 +60,11 @@ open class ValueChainSensor : Sensor {
             }
             Status.ERROR -> {
                 val lastCompletionText = data.completions.lastOrNull()?.format(DateTimeFormatter.ISO_DATE_TIME)
-                                             ?.let { "Siste registrerte fullføring: $it" }
-                                         ?: "Ingen registrerte fullføringer siden oppstart."
+                    ?.let { "Siste registrerte fullføring: $it" }
+                    ?: "Ingen registrerte fullføringer siden oppstart."
                 val completions = data.getCompletionCountAfter(info.getEarliestCompletionTimeIncludingGracePeriod())
                 "$completions fullføringer siste ${getDurationText(info.period.plus(info.gracePeriod))}. " +
-                "Forventet minst ${info.expectedCompletions}. $lastCompletionText"
+                    "Forventet minst ${info.expectedCompletions}. $lastCompletionText"
             }
         }
 
@@ -87,8 +88,17 @@ open class ValueChainSensor : Sensor {
 
     private fun getStatus(info: ValueChainInfo, data: SensorData): Status {
         val now = ZonedDateTime.now()
-        val startupPeriod = data.created.plus(info.period)
-        val startupGracePeriod = data.created.plus(info.period).plus(info.gracePeriod)
+        val lastExitedDisabledHours = now.withHour(info.disabledHours.endHour)
+            .withMinute(0)
+            .withSecond(0)
+        val createdOrExitedDisabledHours =
+            if (info.restartGracePeriodAfterExitingDisabledHours && data.created.isBefore(lastExitedDisabledHours)) {
+                lastExitedDisabledHours
+            } else {
+                data.created
+            }
+        val startupPeriod = createdOrExitedDisabledHours.plus(info.period)
+        val startupGracePeriod = createdOrExitedDisabledHours.plus(info.period).plus(info.gracePeriod)
 
         return when {
             info.disabledHours.isInsideDeadPeriod() -> Status.INFO
@@ -124,6 +134,7 @@ open class ValueChainSensor : Sensor {
         val period: Duration = Duration.ofMinutes(10),
         val gracePeriod: Duration = Duration.ofMinutes(10),
         val disabledHours: DisabledHours = DisabledHours(23, 6),
+        val restartGracePeriodAfterExitingDisabledHours: Boolean = false,
     ) {
         fun getEarliestCompletionTime(): ZonedDateTime {
             return ZonedDateTime.now().minus(period)
@@ -150,4 +161,3 @@ open class ValueChainSensor : Sensor {
         }
     }
 }
-

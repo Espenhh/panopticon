@@ -105,8 +105,15 @@ class PanopticonClient(
                         .withDimensions(cloudwatchValue.dimensions)
                 }
             }
+
         if (cloudwatchClient != null && hasCloudwatchConfig != null && hasCloudwatchConfig.sensorStatisticsEnabled()) {
-            cloudwatchClient.sendStatistics(namespace, statistics)
+            try {
+                cloudwatchClient.sendStatistics(namespace, statistics)
+            } catch (e: Exception) {
+                val statsAsJson = OBJECT_MAPPER.writeValueAsString(statistics)
+                LOG.error { "Failed to send the following statistics to Cloudwatch: $statsAsJson" }
+                throw e;
+            }
         }
     }
 

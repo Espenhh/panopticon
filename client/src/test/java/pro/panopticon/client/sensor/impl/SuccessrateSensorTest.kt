@@ -20,7 +20,7 @@ class SuccessrateSensorTest {
         Assert.assertThat(measurements.size, Is.`is`(1))
         val key1 = measurements.stream().filter { m: Measurement -> m.key == "key1" }.findAny()
         Assert.assertThat(key1.isPresent, Is.`is`(true))
-        Assert.assertThat(key1.get().status, Is.`is`("INFO"))
+        Assert.assertThat(key1.get().status, Is.`is`(Measurement.Status.INFO))
         Assert.assertThat(key1.get().displayValue, StringContains.containsString("Last 2 calls: 1 success, 1 failure"))
         Assert.assertThat(key1.get().displayValue,
             StringContains.containsString("not enough calls to report status yet"))
@@ -34,7 +34,7 @@ class SuccessrateSensorTest {
         Assert.assertThat(measurements.size, Is.`is`(1))
         val key1 = measurements.stream().filter { m: Measurement -> m.key == "key1" }.findAny()
         Assert.assertThat(key1.isPresent, Is.`is`(true))
-        Assert.assertThat(key1.get().status, Is.`is`("INFO"))
+        Assert.assertThat(key1.get().status, Is.`is`(Measurement.Status.INFO))
         Assert.assertThat(key1.get().displayValue,
             StringContains.containsString("Last 100 calls: 100 success, 0 failure"))
     }
@@ -48,7 +48,7 @@ class SuccessrateSensorTest {
         Assert.assertThat(measurements.size, Is.`is`(1))
         val key1 = measurements.stream().filter { m: Measurement -> m.key == "key1" }.findAny()
         Assert.assertThat(key1.isPresent, Is.`is`(true))
-        Assert.assertThat(key1.get().status, Is.`is`("WARN"))
+        Assert.assertThat(key1.get().status, Is.`is`(Measurement.Status.WARN))
         Assert.assertThat(key1.get().displayValue,
             StringContains.containsString("Last 100 calls: 90 success, 10 failure"))
     }
@@ -62,7 +62,7 @@ class SuccessrateSensorTest {
         Assert.assertThat(measurements.size, Is.`is`(1))
         val key1 = measurements.stream().filter { m: Measurement -> m.key == "key1" }.findAny()
         Assert.assertThat(key1.isPresent, Is.`is`(true))
-        Assert.assertThat(key1.get().status, Is.`is`("ERROR"))
+        Assert.assertThat(key1.get().status, Is.`is`(Measurement.Status.ERROR))
         Assert.assertThat(key1.get().displayValue,
             StringContains.containsString("Last 100 calls: 80 success, 20 failure"))
     }
@@ -75,7 +75,7 @@ class SuccessrateSensorTest {
         Assert.assertThat(measurements.size, Is.`is`(1))
         val key1 = measurements.stream().filter { m: Measurement -> m.key == "key1" }.findAny()
         Assert.assertThat(key1.isPresent, Is.`is`(true))
-        Assert.assertThat(key1.get().status, Is.`is`("INFO"))
+        Assert.assertThat(key1.get().status, Is.`is`(Measurement.Status.INFO))
         Assert.assertThat(key1.get().displayValue,
             StringContains.containsString("Last 100 calls: 0 success, 100 failure"))
     }
@@ -89,7 +89,7 @@ class SuccessrateSensorTest {
         Assert.assertThat(measurements.size, Is.`is`(1))
         val key1 = measurements.stream().filter { m: Measurement -> m.key == "key1" }.findAny()
         Assert.assertThat(key1.isPresent, Is.`is`(true))
-        Assert.assertThat(key1.get().status, Is.`is`("INFO"))
+        Assert.assertThat(key1.get().status, Is.`is`(Measurement.Status.INFO))
         Assert.assertThat(key1.get().displayValue,
             StringContains.containsString("Last 100 calls: 100 success, 0 failure"))
     }
@@ -105,12 +105,12 @@ class SuccessrateSensorTest {
         Assert.assertThat(measurements.size, Is.`is`(2))
         val key1 = measurements.stream().filter { m: Measurement -> m.key == "key1" }.findAny()
         Assert.assertThat(key1.isPresent, Is.`is`(true))
-        Assert.assertThat(key1.get().status, Is.`is`("ERROR"))
+        Assert.assertThat(key1.get().status, Is.`is`(Measurement.Status.ERROR))
         Assert.assertThat(key1.get().displayValue,
             StringContains.containsString("Last 100 calls: 50 success, 50 failure"))
         val key2 = measurements.stream().filter { m: Measurement -> m.key == "key2" }.findAny()
         Assert.assertThat(key2.isPresent, Is.`is`(true))
-        Assert.assertThat(key2.get().status, Is.`is`("INFO"))
+        Assert.assertThat(key2.get().status, Is.`is`(Measurement.Status.INFO))
         Assert.assertThat(key2.get().displayValue,
             StringContains.containsString("Last 100 calls: 98 success, 2 failure"))
     }
@@ -135,7 +135,7 @@ class SuccessrateSensorTest {
         IntStream.range(0, 50).forEach { sensor.tickSuccess(Sensor.AlertInfo("key1", "description")) }
         val measurements = sensor.measure()
         val key1 = measurements.stream().filter { m: Measurement -> m.key == "key1" }.findAny()
-        Assert.assertThat(key1.get().status, Is.`is`("INFO"))
+        Assert.assertThat(key1.get().status, Is.`is`(Measurement.Status.INFO))
     }
 
     internal inner class NowSupplierMock : NowSupplier {

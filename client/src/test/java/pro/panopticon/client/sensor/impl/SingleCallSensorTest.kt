@@ -29,7 +29,7 @@ class SingleCallSensorTest {
         sensor.triggerError(Sensor.AlertInfo("123", ALARM_DESCRIPTION))
         val measurements = sensor.measure()
         val measurement = getMeasurementFromList(measurements, "123")
-        Assert.assertEquals("Measurement has error status", "ERROR", measurement.status)
+        Assert.assertEquals("Measurement has error status", Measurement.Status.ERROR, measurement.status)
     }
 
     @Test
@@ -59,7 +59,7 @@ class SingleCallSensorTest {
         sensor.triggerOk(Sensor.AlertInfo("123", ALARM_DESCRIPTION))
         val measurements = sensor.measure()
         val measurement = getMeasurementFromList(measurements, "123")
-        Assert.assertEquals("Measurement has info status", "INFO", measurement.status)
+        Assert.assertEquals("Measurement has info status", Measurement.Status.INFO, measurement.status)
     }
 
     @Test
@@ -69,7 +69,7 @@ class SingleCallSensorTest {
         sensor.triggerError(Sensor.AlertInfo("123", ALARM_DESCRIPTION))
         val measurements = sensor.measure()
         val measurement = getMeasurementFromList(measurements, "123")
-        Assert.assertEquals("Measurement has error status", "ERROR", measurement.status)
+        Assert.assertEquals("Measurement has error status", Measurement.Status.ERROR, measurement.status)
     }
 
     private fun getMeasurementFromList(measurements: List<Measurement>, key: String): Measurement {

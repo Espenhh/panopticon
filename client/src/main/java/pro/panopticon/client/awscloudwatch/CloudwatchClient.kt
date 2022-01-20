@@ -8,6 +8,7 @@ import com.amazonaws.services.cloudwatch.model.Dimension
 import com.amazonaws.services.cloudwatch.model.MetricDatum
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest
 import com.amazonaws.services.cloudwatch.model.StandardUnit
+import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging
 import pro.panopticon.client.model.MetricDimension
 import java.util.Date
@@ -48,7 +49,14 @@ class CloudwatchClient(cloudwatchConfig: HasCloudwatchConfig) {
             .withNamespace(namespace)
             .withMetricData(metricDatumList)
 
-        amazonCloudWatch.putMetricData(request)
+        try {
+            amazonCloudWatch.putMetricData(request)
+        } catch (e: Exception) {
+            val objectMapper = ObjectMapper()
+            val statsAsJson = objectMapper.writeValueAsString(statistics)
+            LOG.error { "Failed to send the following statistics to Cloudwatch: $statsAsJson" }
+            throw e;
+        }
     }
 
     class CloudwatchStatistic @JvmOverloads constructor(

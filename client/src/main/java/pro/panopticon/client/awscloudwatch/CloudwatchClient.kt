@@ -59,18 +59,13 @@ class CloudwatchClient(cloudwatchConfig: HasCloudwatchConfig) {
         }
     }
 
-    class CloudwatchStatistic @JvmOverloads constructor(
-        private val key: String,
-        private val value: Double,
-        private val unit: StandardUnit = StandardUnit.Count,
-        private val date: Date = Date(),
+    data class CloudwatchStatistic @JvmOverloads constructor(
+        val key: String,
+        val value: Double,
+        val unit: StandardUnit = StandardUnit.Count,
+        val date: Date = Date(),
+        val dimensions: List<MetricDimension> = emptyList()
     ) {
-        private var dimensions: List<MetricDimension> = emptyList()
-
-        fun withDimensions(dimensions: List<MetricDimension>): CloudwatchStatistic {
-            this.dimensions = dimensions
-            return this
-        }
 
         fun toMetricsDatum(): MetricDatum {
             return MetricDatum()

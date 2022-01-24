@@ -100,9 +100,9 @@ class PanopticonClient(
                     CloudwatchClient.CloudwatchStatistic(
                         measurement.key,
                         cloudwatchValue.value,
-                        cloudwatchValue.unit
+                        cloudwatchValue.unit,
+                        dimensions = cloudwatchValue.dimensions
                     )
-                        .withDimensions(cloudwatchValue.dimensions)
                 }
             }
 

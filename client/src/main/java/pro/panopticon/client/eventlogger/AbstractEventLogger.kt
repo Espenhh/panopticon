@@ -52,16 +52,20 @@ abstract class AbstractEventLogger(hasCloudwatchConfig: HasCloudwatchConfig, clo
     open fun tick(event: HasEventInfo, vararg dimensions: MetricDimension) {
         val statistics = CloudwatchClient.CloudwatchStatistic(
             event.eventName,
-            1.0
-        ).withDimensions(dimensions.toList())
+            1.0,
+            dimensions = dimensions.toList()
+        )
+
         ticksWithDimensions.add(statistics)
     }
 
     open fun tick(event: HasEventInfo, count: Double, vararg dimensions: MetricDimension) {
         val statistics = CloudwatchClient.CloudwatchStatistic(
             event.eventName,
-            count
-        ).withDimensions(dimensions.toList())
+            count,
+            dimensions = dimensions.toList()
+        )
+
         ticksWithDimensions.add(statistics)
     }
 

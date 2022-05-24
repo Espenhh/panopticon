@@ -70,8 +70,12 @@ abstract class AbstractEventLogger(hasCloudwatchConfig: HasCloudwatchConfig, clo
     }
 
     private fun performLog(event: HasEventInfo, vararg logappends: String) {
-        LOG.info("AUDIT EVENT - [" + event.eventType + "] - [" + event.eventName + "] - " +
-                 logappends.joinToString(" - ") { s: String -> "[$s]" })
+        val message = "AUDIT EVENT - [${event.eventType}] - [${event.eventName}] - " + logappends.joinToString(" - ") { s: String -> "[$s]"}
+        if (event.eventType == "POSSIBLE_BUG") {
+            LOG.error(message)
+        } else {
+            LOG.info(message)
+        }
     }
 
     private fun performTick(event: HasEventInfo, count: Double) {
